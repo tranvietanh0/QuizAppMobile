@@ -34,3 +34,29 @@ export interface GetLeaderboardRequest {
   limit?: number;
   offset?: number;
 }
+
+// New Leaderboard Types (Wave 4)
+export interface LeaderboardEntryNew {
+  rank: number;
+  userId: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  score: number;
+  gamesPlayed: number;
+  accuracy: number;
+}
+
+export interface LeaderboardResponseNew {
+  entries: LeaderboardEntryNew[];
+  userRank?: LeaderboardEntryNew;
+  total: number;
+  period: "daily" | "weekly" | "monthly" | "all_time";
+}
+
+export interface LeaderboardFilter {
+  categoryId?: string;
+  period?: "daily" | "weekly" | "monthly" | "all_time";
+  limit?: number;
+  offset?: number;
+}

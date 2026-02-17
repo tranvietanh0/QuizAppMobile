@@ -7,6 +7,9 @@ import { AppService } from "./app.service";
 import { PrismaModule } from "../prisma/prisma.module";
 import { ConfigValidationSchema, appConfig } from "../config";
 import { AuthModule } from "../auth/auth.module";
+import { UsersModule } from "../users/users.module";
+import { CategoriesModule } from "../categories/categories.module";
+import { QuestionsModule } from "../questions/questions.module";
 import { JwtAuthGuard } from "../common/guards";
 
 @Module({
@@ -27,6 +30,9 @@ import { JwtAuthGuard } from "../common/guards";
 
     // Feature Modules
     AuthModule,
+    UsersModule,
+    CategoriesModule,
+    QuestionsModule,
   ],
   controllers: [AppController],
   providers: [

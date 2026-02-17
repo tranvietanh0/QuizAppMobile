@@ -99,3 +99,62 @@ export interface StartQuizRequest {
 export interface StartQuizResponse {
   session: QuizSession;
 }
+
+// New Quiz Session Types (Wave 4)
+export interface QuizSessionRequest {
+  categoryId: string;
+  difficulty?: "EASY" | "MEDIUM" | "HARD";
+  questionCount?: number;
+}
+
+export interface QuizSessionResponse {
+  sessionId: string;
+  categoryId: string;
+  categoryName: string;
+  totalQuestions: number;
+  currentIndex: number;
+  questions: QuestionForPlay[];
+}
+
+export interface QuestionForPlay {
+  id: string;
+  content: string;
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK";
+  options: string[];
+  timeLimit: number;
+  points: number;
+}
+
+export interface AnswerRequest {
+  sessionId: string;
+  questionId: string;
+  selectedAnswer: string;
+  timeSpent: number;
+}
+
+export interface AnswerResponse {
+  isCorrect: boolean;
+  correctAnswer: string;
+  explanation: string;
+  pointsEarned: number;
+  currentScore: number;
+}
+
+export interface QuizResultResponse {
+  sessionId: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  accuracy: number;
+  timeSpent: number;
+  answers: AnswerReview[];
+}
+
+export interface AnswerReview {
+  questionId: string;
+  question: string;
+  selectedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  explanation: string;
+}

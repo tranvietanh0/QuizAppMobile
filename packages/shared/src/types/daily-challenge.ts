@@ -48,3 +48,37 @@ export interface DailyChallengeLeaderboard {
   }>;
   totalParticipants: number;
 }
+
+// New Daily Challenge Types (Wave 4)
+export interface DailyChallengeNew {
+  id: string;
+  date: string;
+  categoryId: string;
+  categoryName: string;
+  questionCount: number;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  rewardPoints: number;
+  isCompleted: boolean;
+  userScore?: number;
+}
+
+export interface DailyChallengeResponse {
+  challenge: DailyChallengeNew;
+  streak: StreakInfo;
+}
+
+export interface StreakInfo {
+  currentStreak: number;
+  longestStreak: number;
+  lastCompletedDate: string | null;
+}
+
+export interface DailyChallengeResultNew {
+  challengeId: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  streakBonus: number;
+  totalReward: number;
+  newStreak: number;
+}
