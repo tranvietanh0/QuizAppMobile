@@ -16,7 +16,10 @@
       "Bash(ls -la \"D:\\\\Documents\\\\MyProject\\\\QuizAppMobile\\\\apps\\\\mobile\"\" | grep -E \"^d \")",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(eas build:*)",
+      "Bash(eas build:view:*)",
+      "WebFetch(domain:job-logs.eascdn.net)"
     ]
   }
 }
