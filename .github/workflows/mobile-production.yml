@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -88,7 +88,7 @@ jobs:
       build-id: ${{ steps.build.outputs.build-id }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -152,7 +152,7 @@ jobs:
       build-id: ${{ steps.build.outputs.build-id }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -204,7 +204,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.submit == true)
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -231,7 +231,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.submit == true)
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -257,7 +257,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
