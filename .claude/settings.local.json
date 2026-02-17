@@ -23,7 +23,8 @@
       "WebFetch(domain:expo.dev)",
       "Bash(npx expo-modules-autolinking:*)",
       "Bash(eas:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(docker:*)"
     ]
   }
 }

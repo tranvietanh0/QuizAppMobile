@@ -35,6 +35,7 @@ model User {
 
   // Relations
   refreshTokens   RefreshToken[]
+  quizSessions    QuizSession[]
 
   @@map("users")
 }
@@ -89,4 +90,114 @@ model EmailVerificationToken {
   @@index([email])
   @@index([token])
   @@map("email_verification_tokens")
+}
+
+// ============================================
+// Quiz Models
+// ============================================
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_BLANK
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuizSessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  description   String?
+  iconUrl       String?   @map("icon_url")
+  color         String    @default("#3B82F6")
+  questionCount Int       @default(0) @map("question_count")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  questions     Question[]
+  quizSessions  QuizSession[]
+
+  @@map("categories")
+}
+
+model Question {
+  id            String       @id @default(cuid())
+  categoryId    String       @map("category_id")
+  content       String       // The question text
+  type          QuestionType @default(MULTIPLE_CHOICE)
+  difficulty    Difficulty   @default(MEDIUM)
+  options       Json         // Array of options stored as JSON
+  correctAnswer String       @map("correct_answer")
+  explanation   String?
+  imageUrl      String?      @map("image_url")
+  points        Int          @default(10)
+  timeLimit     Int          @default(30) @map("time_limit") // Time limit in seconds
+  isActive      Boolean      @default(true) @map("is_active")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userAnswers   UserAnswer[]
+
+  @@index([categoryId])
+  @@index([difficulty])
+  @@index([type])
+  @@map("questions")
+}
+
+model QuizSession {
+  id              String           @id @default(cuid())
+  userId          String           @map("user_id")
+  categoryId      String           @map("category_id")
+  status          QuizSessionStatus @default(IN_PROGRESS)
+  score           Int              @default(0)
+  totalQuestions  Int              @map("total_questions")
+  correctAnswers  Int              @default(0) @map("correct_answers")
+  currentIndex    Int              @default(0) @map("current_index")
+  questionIds     Json             @map("question_ids") // Array of question IDs for this session
+  startedAt       DateTime         @default(now()) @map("started_at")
+  completedAt     DateTime?        @map("completed_at")
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category        Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userAnswers     UserAnswer[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("quiz_sessions")
+}
+
+model UserAnswer {
+  id             String      @id @default(cuid())
+  sessionId      String      @map("session_id")
+  questionId     String      @map("question_id")
+  selectedAnswer String      @map("selected_answer")
+  isCorrect      Boolean     @map("is_correct")
+  pointsEarned   Int         @default(0) @map("points_earned")
+  timeSpent      Int         @map("time_spent") // Time spent in seconds
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  session        QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+  @@index([questionId])
+  @@map("user_answers")
 }
