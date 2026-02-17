@@ -1,74 +1,75 @@
-import { MMKV } from "react-native-mmkv";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
- * MMKV storage instance
- * Fast, synchronous storage for React Native
- * Requires development build (not compatible with Expo Go)
- */
-export const storage = new MMKV();
-
-/**
- * Storage helper functions using MMKV
- * Synchronous API for better performance
+ * Storage helper functions using AsyncStorage
+ * Compatible with Expo Go (for development)
+ * Can switch to MMKV in production with development build
  */
 export const storageHelper = {
   /**
    * Store a string value
    */
-  setString: (key: string, value: string): void => {
-    storage.set(key, value);
+  setString: async (key: string, value: string): Promise<void> => {
+    await AsyncStorage.setItem(key, value);
   },
 
   /**
    * Get a string value
    */
-  getString: (key: string, defaultValue?: string): string | undefined => {
-    const value = storage.getString(key);
+  getString: async (key: string, defaultValue?: string): Promise<string | undefined> => {
+    const value = await AsyncStorage.getItem(key);
     return value ?? defaultValue;
   },
 
   /**
    * Store a number value
    */
-  setNumber: (key: string, value: number): void => {
-    storage.set(key, value);
+  setNumber: async (key: string, value: number): Promise<void> => {
+    await AsyncStorage.setItem(key, String(value));
   },
 
   /**
    * Get a number value
    */
-  getNumber: (key: string, defaultValue?: number): number | undefined => {
-    const value = storage.getNumber(key);
-    return value ?? defaultValue;
+  getNumber: async (key: string, defaultValue?: number): Promise<number | undefined> => {
+    const value = await AsyncStorage.getItem(key);
+    if (value !== null) {
+      const num = parseFloat(value);
+      return isNaN(num) ? defaultValue : num;
+    }
+    return defaultValue;
   },
 
   /**
    * Store a boolean value
    */
-  setBoolean: (key: string, value: boolean): void => {
-    storage.set(key, value);
+  setBoolean: async (key: string, value: boolean): Promise<void> => {
+    await AsyncStorage.setItem(key, value ? "true" : "false");
   },
 
   /**
    * Get a boolean value
    */
-  getBoolean: (key: string, defaultValue?: boolean): boolean | undefined => {
-    const value = storage.getBoolean(key);
-    return value ?? defaultValue;
+  getBoolean: async (key: string, defaultValue?: boolean): Promise<boolean | undefined> => {
+    const value = await AsyncStorage.getItem(key);
+    if (value !== null) {
+      return value === "true";
+    }
+    return defaultValue;
   },
 
   /**
    * Store an object (serialized as JSON)
    */
-  setObject: <T>(key: string, value: T): void => {
-    storage.set(key, JSON.stringify(value));
+  setObject: async <T>(key: string, value: T): Promise<void> => {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
   },
 
   /**
    * Get an object (parsed from JSON)
    */
-  getObject: <T>(key: string, defaultValue?: T): T | undefined => {
-    const value = storage.getString(key);
+  getObject: async <T>(key: string, defaultValue?: T): Promise<T | undefined> => {
+    const value = await AsyncStorage.getItem(key);
     if (value) {
       try {
         return JSON.parse(value) as T;
@@ -82,29 +83,31 @@ export const storageHelper = {
   /**
    * Delete a value
    */
-  delete: (key: string): void => {
-    storage.delete(key);
+  delete: async (key: string): Promise<void> => {
+    await AsyncStorage.removeItem(key);
   },
 
   /**
    * Check if a key exists
    */
-  contains: (key: string): boolean => {
-    return storage.contains(key);
+  contains: async (key: string): Promise<boolean> => {
+    const value = await AsyncStorage.getItem(key);
+    return value !== null;
   },
 
   /**
    * Get all keys
    */
-  getAllKeys: (): string[] => {
-    return storage.getAllKeys();
+  getAllKeys: async (): Promise<string[]> => {
+    const keys = await AsyncStorage.getAllKeys();
+    return [...keys];
   },
 
   /**
    * Clear all storage
    */
-  clearAll: (): void => {
-    storage.clearAll();
+  clearAll: async (): Promise<void> => {
+    await AsyncStorage.clear();
   },
 };
 

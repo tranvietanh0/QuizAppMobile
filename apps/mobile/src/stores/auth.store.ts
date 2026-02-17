@@ -1,8 +1,9 @@
 import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { User, AuthResponse } from "@quizapp/shared";
 
 import { apiClient } from "@/services/api-client";
-import { storage, STORAGE_KEYS } from "@/utils/storage";
+import { STORAGE_KEYS } from "@/utils/storage";
 
 /**
  * Auth store state interface
@@ -20,7 +21,7 @@ interface AuthState {
  * Auth store actions interface
  */
 interface AuthActions {
-  initialize: () => void;
+  initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,13 +50,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   ...initialState,
 
   /**
-   * Initialize auth state from storage (synchronous with MMKV)
+   * Initialize auth state from storage
    */
-  initialize: () => {
+  initialize: async () => {
     try {
-      const accessToken = storage.getString(STORAGE_KEYS.ACCESS_TOKEN);
-      const refreshToken = storage.getString(STORAGE_KEYS.REFRESH_TOKEN);
-      const userJson = storage.getString(STORAGE_KEYS.USER);
+      const [accessToken, refreshToken, userJson] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN),
+        AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
+        AsyncStorage.getItem(STORAGE_KEYS.USER),
+      ]);
 
       if (accessToken && refreshToken && userJson) {
         const user = JSON.parse(userJson) as User;
@@ -88,10 +91,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const { user, accessToken, refreshToken } = response.data;
 
-      // Persist to storage (synchronous)
-      storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-      storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-      storage.set(STORAGE_KEYS.USER, JSON.stringify(user));
+      // Persist to storage
+      await Promise.all([
+        AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+        AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
+        AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)),
+      ]);
 
       set({
         user: user as unknown as User,
@@ -120,10 +125,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const { user, accessToken, refreshToken } = response.data;
 
-      // Persist to storage (synchronous)
-      storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-      storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-      storage.set(STORAGE_KEYS.USER, JSON.stringify(user));
+      // Persist to storage
+      await Promise.all([
+        AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+        AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
+        AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)),
+      ]);
 
       set({
         user: user as unknown as User,
@@ -169,9 +176,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
-      // Update storage (synchronous)
-      storage.set(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
-      storage.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+      // Update storage
+      await Promise.all([
+        AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken),
+        AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken),
+      ]);
 
       set({
         accessToken: newAccessToken,
@@ -193,7 +202,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const { user } = get();
     if (user) {
       const updatedUser = { ...user, ...userData };
-      storage.set(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+      AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
       set({ user: updatedUser });
     }
   },
@@ -202,8 +211,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    * Set tokens manually (used by API interceptor)
    */
   setTokens: (accessToken: string, refreshToken: string) => {
-    storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-    storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+    AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
     set({ accessToken, refreshToken });
   },
 
@@ -211,9 +220,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    * Clear all auth data
    */
   clearAuth: () => {
-    storage.delete(STORAGE_KEYS.ACCESS_TOKEN);
-    storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
-    storage.delete(STORAGE_KEYS.USER);
+    AsyncStorage.multiRemove([
+      STORAGE_KEYS.ACCESS_TOKEN,
+      STORAGE_KEYS.REFRESH_TOKEN,
+      STORAGE_KEYS.USER,
+    ]);
     set({
       ...initialState,
       isInitialized: true,

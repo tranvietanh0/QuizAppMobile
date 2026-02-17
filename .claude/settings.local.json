@@ -21,7 +21,9 @@
       "Bash(eas build:view:*)",
       "WebFetch(domain:job-logs.eascdn.net)",
       "WebFetch(domain:expo.dev)",
-      "Bash(npx expo-modules-autolinking:*)"
+      "Bash(npx expo-modules-autolinking:*)",
+      "Bash(eas:*)",
+      "Bash(where:*)"
     ]
   }
 }
