@@ -21,15 +21,22 @@ export const API_ENDPOINTS = {
     DELETE_ACCOUNT: "/users/me",
   },
   QUIZ: {
-    CATEGORIES: "/quiz/categories",
-    QUESTIONS: "/quiz/questions",
-    START: "/quiz/sessions/start",
-    SUBMIT_ANSWER: "/quiz/sessions/answer",
-    RESULT: "/quiz/sessions/:id/result",
+    CATEGORIES: "/categories",
+    CATEGORY: "/categories/:id",
+    QUESTIONS: "/questions",
+    // Quiz Sessions
+    START: "/quiz/start",
+    SUBMIT_ANSWER: "/quiz/answer",
+    SESSION: "/quiz/session/:id",
+    COMPLETE_SESSION: "/quiz/session/:id/complete",
+    ABANDON_SESSION: "/quiz/session/:id/abandon",
+    HISTORY: "/quiz/history",
   },
   LEADERBOARD: {
-    GLOBAL: "/leaderboard/global",
-    CATEGORY: "/leaderboard/category/:id",
+    GLOBAL: "/leaderboards",
+    CATEGORY: "/leaderboards/category/:id",
+    USER_RANK: "/leaderboards/me",
+    USER_CATEGORY_RANK: "/leaderboards/me/category/:id",
   },
   ACHIEVEMENTS: {
     LIST: "/achievements",
@@ -37,9 +44,11 @@ export const API_ENDPOINTS = {
     PROGRESS: "/achievements/me/progress",
   },
   DAILY_CHALLENGE: {
-    TODAY: "/daily-challenge/today",
+    TODAY: "/daily-challenge",
+    STATUS: "/daily-challenge/status",
+    START: "/daily-challenge/start",
+    COMPLETE: "/daily-challenge/complete",
     STREAK: "/daily-challenge/streak",
-    LEADERBOARD: "/daily-challenge/leaderboard",
   },
   NOTIFICATIONS: {
     LIST: "/notifications",

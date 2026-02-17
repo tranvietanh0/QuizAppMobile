@@ -10,6 +10,9 @@ import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { CategoriesModule } from "../categories/categories.module";
 import { QuestionsModule } from "../questions/questions.module";
+import { QuizSessionsModule } from "../quiz-sessions/quiz-sessions.module";
+import { LeaderboardsModule } from "../leaderboards/leaderboards.module";
+import { DailyChallengesModule } from "../daily-challenges/daily-challenges.module";
 import { JwtAuthGuard } from "../common/guards";
 
 @Module({
@@ -33,6 +36,9 @@ import { JwtAuthGuard } from "../common/guards";
     UsersModule,
     CategoriesModule,
     QuestionsModule,
+    QuizSessionsModule,
+    LeaderboardsModule,
+    DailyChallengesModule,
   ],
   controllers: [AppController],
   providers: [

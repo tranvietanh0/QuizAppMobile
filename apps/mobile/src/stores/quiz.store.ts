@@ -1,17 +1,26 @@
 import { create } from "zustand";
-import type {
-  Category,
-  QuestionForClient,
-  QuizSession,
-  Difficulty,
-} from "@quizapp/shared";
+import type { Category, Difficulty } from "@quizapp/shared";
+
+/**
+ * Session question type (matches backend response)
+ */
+interface SessionQuestion {
+  id: string;
+  content: string;
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "FILL_BLANK";
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  options: string[];
+  imageUrl: string | null;
+  points: number;
+  timeLimit: number;
+}
 
 /**
  * Quiz store state interface
  */
 interface QuizState {
-  // Current quiz session
-  currentSession: QuizSession | null;
+  // Current session ID
+  currentSessionId: string | null;
   currentQuestionIndex: number;
   selectedAnswer: string | null;
   timeRemaining: number;
@@ -22,7 +31,7 @@ interface QuizState {
   questionCount: number;
 
   // Quiz data
-  questions: QuestionForClient[];
+  questions: SessionQuestion[];
   answers: Map<string, string>;
 
   // UI state
@@ -36,16 +45,12 @@ interface QuizState {
  */
 interface QuizActions {
   // Session management
-  startQuiz: (
-    category: Category,
-    difficulty: Difficulty,
-    count: number
-  ) => void;
+  startQuiz: (category: Category, difficulty: Difficulty, count: number) => void;
   endQuiz: () => void;
   resetQuiz: () => void;
 
   // Question navigation
-  setQuestions: (questions: QuestionForClient[]) => void;
+  setQuestions: (questions: SessionQuestion[]) => void;
   nextQuestion: () => void;
   previousQuestion: () => void;
   goToQuestion: (index: number) => void;
@@ -67,14 +72,14 @@ interface QuizActions {
   setQuestionCount: (count: number) => void;
 
   // Session
-  setSession: (session: QuizSession | null) => void;
+  setSessionId: (sessionId: string | null) => void;
   setLoading: (loading: boolean) => void;
 }
 
 type QuizStore = QuizState & QuizActions;
 
 const initialState: QuizState = {
-  currentSession: null,
+  currentSessionId: null,
   currentQuestionIndex: 0,
   selectedAnswer: null,
   timeRemaining: 30,
@@ -98,11 +103,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   /**
    * Start a new quiz
    */
-  startQuiz: (
-    category: Category,
-    difficulty: Difficulty,
-    count: number
-  ) => {
+  startQuiz: (category: Category, difficulty: Difficulty, count: number) => {
     set({
       selectedCategory: category,
       selectedDifficulty: difficulty,
@@ -133,7 +134,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   /**
    * Set questions for current quiz
    */
-  setQuestions: (questions: QuestionForClient[]) => {
+  setQuestions: (questions: SessionQuestion[]) => {
     set({
       questions,
       isLoading: false,
@@ -273,10 +274,10 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   },
 
   /**
-   * Set quiz session
+   * Set quiz session ID
    */
-  setSession: (session: QuizSession | null) => {
-    set({ currentSession: session });
+  setSessionId: (sessionId: string | null) => {
+    set({ currentSessionId: sessionId });
   },
 
   /**

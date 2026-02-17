@@ -20,7 +20,7 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
 
   const handleStartQuiz = (categoryId: string) => {
-    router.push(`/(main)/quiz/${categoryId}`);
+    router.push(`/(main)/quiz/${categoryId}` as never);
   };
 
   return (

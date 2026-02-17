@@ -1,5 +1,72 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// In-memory cache for sync access
+// This provides sync-like access while using AsyncStorage under the hood
+const memoryCache = new Map<string, string>();
+
+/**
+ * Sync storage interface (cached in memory)
+ * Provides MMKV-like sync methods using an in-memory cache
+ * backed by AsyncStorage for persistence
+ */
+export const storage = {
+  /**
+   * Get a string value (sync from cache)
+   */
+  getString: (key: string): string | undefined => {
+    return memoryCache.get(key);
+  },
+
+  /**
+   * Set a string value (sync to cache, async to storage)
+   */
+  set: (key: string, value: string): void => {
+    memoryCache.set(key, value);
+    AsyncStorage.setItem(key, value).catch(console.error);
+  },
+
+  /**
+   * Delete a value
+   */
+  delete: (key: string): void => {
+    memoryCache.delete(key);
+    AsyncStorage.removeItem(key).catch(console.error);
+  },
+
+  /**
+   * Check if key exists
+   */
+  contains: (key: string): boolean => {
+    return memoryCache.has(key);
+  },
+
+  /**
+   * Clear all storage
+   */
+  clearAll: (): void => {
+    memoryCache.clear();
+    AsyncStorage.clear().catch(console.error);
+  },
+
+  /**
+   * Initialize storage - load all values from AsyncStorage into memory
+   * Should be called at app startup
+   */
+  initialize: async (): Promise<void> => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const items = await AsyncStorage.multiGet(keys);
+      for (const [key, value] of items) {
+        if (value !== null) {
+          memoryCache.set(key, value);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to initialize storage:", error);
+    }
+  },
+};
+
 /**
  * Storage helper functions using AsyncStorage
  * Compatible with Expo Go (for development)
