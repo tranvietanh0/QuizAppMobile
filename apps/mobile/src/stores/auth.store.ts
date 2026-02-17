@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import type { User, AuthResponse } from "@quizapp/shared";
 
-import { storage } from "@/utils/storage";
 import { apiClient } from "@/services/api-client";
+import { storage, STORAGE_KEYS } from "@/utils/storage";
 
 /**
  * Auth store state interface
@@ -20,7 +20,7 @@ interface AuthState {
  * Auth store actions interface
  */
 interface AuthActions {
-  initialize: () => Promise<void>;
+  initialize: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,13 +49,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   ...initialState,
 
   /**
-   * Initialize auth state from storage
+   * Initialize auth state from storage (synchronous with MMKV)
    */
-  initialize: async () => {
+  initialize: () => {
     try {
-      const accessToken = storage.getString("accessToken");
-      const refreshToken = storage.getString("refreshToken");
-      const userJson = storage.getString("user");
+      const accessToken = storage.getString(STORAGE_KEYS.ACCESS_TOKEN);
+      const refreshToken = storage.getString(STORAGE_KEYS.REFRESH_TOKEN);
+      const userJson = storage.getString(STORAGE_KEYS.USER);
 
       if (accessToken && refreshToken && userJson) {
         const user = JSON.parse(userJson) as User;
@@ -66,9 +66,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           isAuthenticated: true,
           isInitialized: true,
         });
-
-        // Optionally verify token validity
-        // await get().refreshTokens();
       } else {
         set({ isInitialized: true });
       }
@@ -91,10 +88,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const { user, accessToken, refreshToken } = response.data;
 
-      // Persist to storage
-      storage.set("accessToken", accessToken);
-      storage.set("refreshToken", refreshToken);
-      storage.set("user", JSON.stringify(user));
+      // Persist to storage (synchronous)
+      storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      storage.set(STORAGE_KEYS.USER, JSON.stringify(user));
 
       set({
         user: user as unknown as User,
@@ -123,10 +120,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       const { user, accessToken, refreshToken } = response.data;
 
-      // Persist to storage
-      storage.set("accessToken", accessToken);
-      storage.set("refreshToken", refreshToken);
-      storage.set("user", JSON.stringify(user));
+      // Persist to storage (synchronous)
+      storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      storage.set(STORAGE_KEYS.USER, JSON.stringify(user));
 
       set({
         user: user as unknown as User,
@@ -170,12 +167,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         refreshToken: string;
       }>("/auth/refresh", { refreshToken });
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-        response.data;
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
-      // Update storage
-      storage.set("accessToken", newAccessToken);
-      storage.set("refreshToken", newRefreshToken);
+      // Update storage (synchronous)
+      storage.set(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
 
       set({
         accessToken: newAccessToken,
@@ -197,7 +193,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const { user } = get();
     if (user) {
       const updatedUser = { ...user, ...userData };
-      storage.set("user", JSON.stringify(updatedUser));
+      storage.set(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
       set({ user: updatedUser });
     }
   },
@@ -206,8 +202,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    * Set tokens manually (used by API interceptor)
    */
   setTokens: (accessToken: string, refreshToken: string) => {
-    storage.set("accessToken", accessToken);
-    storage.set("refreshToken", refreshToken);
+    storage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+    storage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
     set({ accessToken, refreshToken });
   },
 
@@ -215,9 +211,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    * Clear all auth data
    */
   clearAuth: () => {
-    storage.delete("accessToken");
-    storage.delete("refreshToken");
-    storage.delete("user");
+    storage.delete(STORAGE_KEYS.ACCESS_TOKEN);
+    storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
+    storage.delete(STORAGE_KEYS.USER);
     set({
       ...initialState,
       isInitialized: true,

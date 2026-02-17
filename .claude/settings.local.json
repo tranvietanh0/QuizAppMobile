@@ -5,7 +5,18 @@
       "Bash(pnpm:*)",
       "Bash(npm install:*)",
       "Bash(echo:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri ''https://placehold.co/1024x1024/6366F1/white/png?text=Q'' -OutFile ''icon.png''\")",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri ''https://placehold.co/1284x2778/6366F1/white/png?text=QuizApp'' -OutFile ''splash-icon.png''\")",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri ''https://placehold.co/1024x1024/6366F1/white/png?text=Q'' -OutFile ''adaptive-icon.png''\")",
+      "Bash(powershell -Command:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo start)",
+      "Bash(ls -la \"D:\\\\Documents\\\\MyProject\\\\QuizAppMobile\\\\apps\\\\mobile\"\" | grep -E \"^d \")",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)"
     ]
   }
 }

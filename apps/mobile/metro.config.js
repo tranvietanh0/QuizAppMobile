@@ -4,8 +4,6 @@ const path = require("path");
 
 // Find the project and workspace directories
 const projectRoot = __dirname;
-// This can be replaced with `auto` to automatically determine
-// the workspace root, but this example uses a fixed path
 const monorepoRoot = path.resolve(projectRoot, "../..");
 
 /** @type {import('expo/metro-config').MetroConfig} */
@@ -20,7 +18,20 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, "node_modules"),
 ];
 
-// 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
+// 3. Resolve axios to browser version (not node)
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Force axios to use browser build
+  if (moduleName === "axios") {
+    return {
+      filePath: require.resolve("axios/dist/browser/axios.cjs"),
+      type: "sourceFile",
+    };
+  }
+  // Use default resolution for other modules
+  return context.resolveRequest(context, moduleName, platform);
+};
+
+// 4. Disable hierarchical lookup for monorepo
 config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;

@@ -2,15 +2,14 @@ import { MMKV } from "react-native-mmkv";
 
 /**
  * MMKV storage instance
- * Fast, efficient key-value storage for React Native
+ * Fast, synchronous storage for React Native
+ * Requires development build (not compatible with Expo Go)
  */
-export const storage = new MMKV({
-  id: "quizapp-storage",
-  encryptionKey: "quizapp-secure-key", // In production, use a secure key
-});
+export const storage = new MMKV();
 
 /**
- * Storage helper functions
+ * Storage helper functions using MMKV
+ * Synchronous API for better performance
  */
 export const storageHelper = {
   /**
@@ -139,5 +138,3 @@ export const STORAGE_KEYS = {
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
-
-export default storage;
