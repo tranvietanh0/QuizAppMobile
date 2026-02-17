@@ -21,11 +21,16 @@ import {
   Pressable,
 } from "@gluestack-ui/themed";
 
+import { useForgotPassword, getApiErrorMessage } from "@/services";
+import { useColors } from "@/theme";
+
 export default function ForgotPasswordScreen() {
+  const colors = useColors();
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const forgotPasswordMutation = useForgotPassword();
 
   const handleSubmit = async () => {
     if (!email) {
@@ -33,31 +38,48 @@ export default function ForgotPasswordScreen() {
       return;
     }
 
-    setIsLoading(true);
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setError(null);
 
     try {
-      // TODO: Call forgot password API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await forgotPasswordMutation.mutateAsync({ email });
       setSuccess(true);
-    } catch {
-      setError("Failed to send email. Please try again.");
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      const message = getApiErrorMessage(err);
+      // Show generic success message for security (don't reveal if email exists)
+      // In production, the backend should always return success to prevent email enumeration
+      if (message.includes("not found") || message.includes("404")) {
+        setSuccess(true); // Don't reveal that email doesn't exist
+      } else {
+        setError(message || "Failed to send email. Please try again.");
+      }
     }
   };
 
   if (success) {
     return (
-      <Box flex={1} bg="$white" px="$6" justifyContent="center">
+      <Box flex={1} bg={colors.background} px="$6" justifyContent="center">
         <Center>
-          <Heading size="xl" color="$primary600" textAlign="center">
+          <Heading size="xl" color={colors.primary} textAlign="center">
             Email Sent!
           </Heading>
-          <Text size="md" color="$textLight500" mt="$4" textAlign="center" lineHeight="$lg">
-            Please check your inbox and follow the instructions to reset your password.
+          <Text size="md" color={colors.textSecondary} mt="$4" textAlign="center" lineHeight="$lg">
+            If an account with that email exists, you'll receive instructions to reset your
+            password.
           </Text>
-          <Button size="lg" bgColor="$primary600" onPress={() => router.back()} mt="$8" w="$full">
+          <Button
+            size="lg"
+            bgColor={colors.primary}
+            onPress={() => router.back()}
+            mt="$8"
+            w="$full"
+          >
             <ButtonText>Back to Sign In</ButtonText>
           </Button>
         </Center>
@@ -70,31 +92,45 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <Box flex={1} bg="$white" px="$6" pt="$16">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        style={{ backgroundColor: colors.background }}
+      >
+        <Box flex={1} bg={colors.background} px="$6" pt="$16">
           <Pressable onPress={() => router.back()} mb="$8">
-            <Icon as={ArrowLeftIcon} size="xl" color="$textDark900" />
+            <Icon as={ArrowLeftIcon} size="xl" color={colors.text} />
           </Pressable>
 
           <VStack space="md">
-            <Heading size="2xl" color="$textDark900">
+            <Heading size="2xl" color={colors.text}>
               Forgot Password?
             </Heading>
-            <Text size="md" color="$textLight500" mb="$6">
+            <Text size="md" color={colors.textSecondary} mb="$6">
               Enter your email and we'll send you instructions to reset your password.
             </Text>
 
             <FormControl isInvalid={!!error}>
               <FormControlLabel>
-                <FormControlLabelText>Email</FormControlLabelText>
+                <FormControlLabelText color={colors.text}>Email</FormControlLabelText>
               </FormControlLabel>
-              <Input size="lg" variant="outline">
+              <Input
+                size="lg"
+                variant="outline"
+                borderColor={colors.cardBorder}
+                $focus-borderColor={colors.primary}
+              >
                 <InputField
                   placeholder="email@example.com"
+                  placeholderTextColor={colors.textTertiary}
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (error) setError(null);
+                  }}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  color={colors.text}
                 />
               </Input>
               {error && (
@@ -106,17 +142,20 @@ export default function ForgotPasswordScreen() {
 
             <Button
               size="lg"
-              bgColor="$primary600"
+              bgColor={colors.primary}
               onPress={handleSubmit}
-              isDisabled={isLoading}
+              isDisabled={forgotPasswordMutation.isPending}
               mt="$4"
+              opacity={forgotPasswordMutation.isPending ? 0.7 : 1}
             >
-              <ButtonText>{isLoading ? "Sending..." : "Send Request"}</ButtonText>
+              <ButtonText>
+                {forgotPasswordMutation.isPending ? "Sending..." : "Send Request"}
+              </ButtonText>
             </Button>
 
             <Center mt="$6">
               <Link href="/(auth)/login">
-                <Text color="$primary600" fontWeight="$medium">
+                <Text color={colors.primary} fontWeight="$medium">
                   Back to Sign In
                 </Text>
               </Link>

@@ -77,3 +77,12 @@ export type {
   UserStreak,
   DailyChallengeStatus,
 } from "./daily-challenge.service";
+
+// User Service
+export {
+  useUserStats,
+  useUserPreferences,
+  useUpdatePreferences,
+  computeProfileStats,
+} from "./user.service";
+export type { ProfileStats } from "./user.service";

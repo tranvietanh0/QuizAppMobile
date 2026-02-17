@@ -7,6 +7,7 @@ import { useState, useCallback } from "react";
 import { useAuthStore } from "@/stores/auth.store";
 import { useColors } from "@/theme";
 import { FadeIn, AnimatedPressable, Card } from "@/components/ui";
+import { useResponsiveCategoryGrid } from "@/hooks";
 
 // Mock categories data
 const CATEGORIES = [
@@ -22,9 +23,14 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
+  const { itemWidth, gap } = useResponsiveCategoryGrid();
 
   const handleStartQuiz = (categoryId: string) => {
     router.push(`/(main)/quiz/${categoryId}` as never);
+  };
+
+  const handleDailyChallenge = () => {
+    router.push("/(main)/daily-challenge" as never);
   };
 
   const onRefresh = useCallback(() => {
@@ -60,11 +66,7 @@ export default function HomeScreen() {
 
           {/* Daily Challenge Card */}
           <FadeIn delay={100}>
-            <AnimatedPressable
-              onPress={() => {
-                // TODO: Navigate to daily challenge
-              }}
-            >
+            <AnimatedPressable onPress={handleDailyChallenge}>
               <View style={[styles.dailyCard, { backgroundColor: colors.primary }]}>
                 <View style={styles.dailyCardContent}>
                   <View style={styles.dailyCardText}>
@@ -90,13 +92,13 @@ export default function HomeScreen() {
             </View>
           </FadeIn>
 
-          {/* Category Grid */}
-          <View style={styles.categoryGrid}>
+          {/* Category Grid - Responsive */}
+          <View style={[styles.categoryGrid, { marginHorizontal: -(gap / 2) }]}>
             {CATEGORIES.map((category, index) => (
               <FadeIn key={category.id} delay={250 + index * 50}>
                 <AnimatedPressable
                   onPress={() => handleStartQuiz(category.id)}
-                  style={styles.categoryCardWrapper}
+                  style={{ width: itemWidth, padding: gap / 2 }}
                 >
                   <Card variant="outlined" padding="md" radius="xl">
                     <View style={[styles.categoryIcon, { backgroundColor: category.color + "15" }]}>
@@ -211,11 +213,6 @@ const styles = StyleSheet.create({
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginHorizontal: -6,
-  },
-  categoryCardWrapper: {
-    width: "50%",
-    padding: 6,
   },
   categoryIcon: {
     width: 48,

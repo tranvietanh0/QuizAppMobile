@@ -6,18 +6,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "@/stores/auth.store";
 import { useTheme, useColors } from "@/theme";
 import { FadeIn, AnimatedPressable, Card, ListItem } from "@/components/ui";
-
-// Stats mock data
-const STATS = [
-  { label: "Quizzes", value: "24" },
-  { label: "Accuracy", value: "85%" },
-  { label: "Streak", value: "5" },
-];
+import { useUserStats, useUserStreak, computeProfileStats } from "@/services";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const { isDark, toggleTheme, preference } = useTheme();
   const colors = useColors();
+
+  const { data: userStats, isLoading: statsLoading } = useUserStats();
+  const { data: streakData } = useUserStreak();
+
+  // Compute profile stats from real data
+  const profileStats = computeProfileStats(userStats);
+  const stats = [
+    { label: "Quizzes", value: statsLoading ? "-" : profileStats.quizzes },
+    { label: "Accuracy", value: statsLoading ? "-" : profileStats.accuracy },
+    { label: "Streak", value: String(streakData?.currentStreak ?? 0) },
+  ];
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -37,8 +42,22 @@ export default function ProfileScreen() {
   };
 
   const handleMenuPress = (itemId: string) => {
-    // TODO: Navigate to corresponding screen
-    console.log("Menu item pressed:", itemId);
+    switch (itemId) {
+      case "achievements":
+        router.push("/(main)/achievements" as never);
+        break;
+      case "history":
+        router.push("/(main)/history" as never);
+        break;
+      case "settings":
+        router.push("/(main)/settings" as never);
+        break;
+      case "help":
+        router.push("/(main)/help" as never);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -77,7 +96,7 @@ export default function ProfileScreen() {
 
               {/* Stats */}
               <View style={styles.statsRow}>
-                {STATS.map((stat, index) => (
+                {stats.map((stat, index) => (
                   <View key={index} style={styles.statItem}>
                     <Text style={styles.statValue}>{stat.value}</Text>
                     <Text style={styles.statLabel}>{stat.label}</Text>

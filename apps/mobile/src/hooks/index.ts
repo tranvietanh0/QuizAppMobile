@@ -5,3 +5,4 @@
 
 export { useNetworkStatus } from "./useNetworkStatus";
 export { useDebounce } from "./useDebounce";
+export { useResponsiveColumns, useResponsiveCategoryGrid } from "./useResponsiveColumns";
