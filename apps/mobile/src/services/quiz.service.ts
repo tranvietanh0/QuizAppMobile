@@ -5,6 +5,15 @@ import { API_ENDPOINTS } from "@quizapp/shared";
 import { apiClient, getApiErrorMessage } from "./api-client";
 import { queryKeys } from "./query-client";
 
+/**
+ * API response wrapper type (backend wraps all responses)
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
 // ============================================
 // Types matching backend DTOs
 // ============================================
@@ -129,8 +138,8 @@ export function useCategories() {
   return useQuery({
     queryKey: queryKeys.quiz.categories(),
     queryFn: async () => {
-      const response = await apiClient.get<Category[]>(API_ENDPOINTS.QUIZ.CATEGORIES);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<Category[]>>(API_ENDPOINTS.QUIZ.CATEGORIES);
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
   });
@@ -144,8 +153,8 @@ export function useCategory(categoryId: string) {
     queryKey: queryKeys.quiz.category(categoryId),
     queryFn: async () => {
       const endpoint = API_ENDPOINTS.QUIZ.CATEGORY.replace(":id", categoryId);
-      const response = await apiClient.get<Category>(endpoint);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<Category>>(endpoint);
+      return response.data.data;
     },
     enabled: !!categoryId,
   });
@@ -163,8 +172,11 @@ export function useStartQuiz() {
 
   return useMutation({
     mutationFn: async (params: StartQuizRequest) => {
-      const response = await apiClient.post<QuizSessionResponse>(API_ENDPOINTS.QUIZ.START, params);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<QuizSessionResponse>>(
+        API_ENDPOINTS.QUIZ.START,
+        params
+      );
+      return response.data.data;
     },
     onSuccess: (data) => {
       // Cache the session
@@ -184,8 +196,8 @@ export function useQuizSession(sessionId: string) {
     queryKey: queryKeys.quiz.session(sessionId),
     queryFn: async () => {
       const endpoint = API_ENDPOINTS.QUIZ.SESSION.replace(":id", sessionId);
-      const response = await apiClient.get<QuizSessionResponse>(endpoint);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<QuizSessionResponse>>(endpoint);
+      return response.data.data;
     },
     enabled: !!sessionId,
     staleTime: 0, // Always fetch fresh data for active session
@@ -200,8 +212,11 @@ export function useSubmitAnswer() {
 
   return useMutation({
     mutationFn: async (params: SubmitAnswerRequest) => {
-      const response = await apiClient.post<AnswerResult>(API_ENDPOINTS.QUIZ.SUBMIT_ANSWER, params);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<AnswerResult>>(
+        API_ENDPOINTS.QUIZ.SUBMIT_ANSWER,
+        params
+      );
+      return response.data.data;
     },
     onSuccess: (data, variables) => {
       // Invalidate session query to get updated state
@@ -224,8 +239,8 @@ export function useCompleteQuiz() {
   return useMutation({
     mutationFn: async (sessionId: string) => {
       const endpoint = API_ENDPOINTS.QUIZ.COMPLETE_SESSION.replace(":id", sessionId);
-      const response = await apiClient.post<QuizResult>(endpoint);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<QuizResult>>(endpoint);
+      return response.data.data;
     },
     onSuccess: (data) => {
       // Cache the result
@@ -257,8 +272,8 @@ export function useAbandonQuiz() {
   return useMutation({
     mutationFn: async (sessionId: string) => {
       const endpoint = API_ENDPOINTS.QUIZ.ABANDON_SESSION.replace(":id", sessionId);
-      const response = await apiClient.post<QuizResult>(endpoint);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<QuizResult>>(endpoint);
+      return response.data.data;
     },
     onSuccess: (data) => {
       // Cache the result
@@ -284,10 +299,10 @@ export function useQuizResult(sessionId: string) {
   return useQuery({
     queryKey: queryKeys.quiz.result(sessionId),
     queryFn: async () => {
-      const response = await apiClient.get<QuizResult>(
+      const response = await apiClient.get<ApiResponse<QuizResult>>(
         API_ENDPOINTS.QUIZ.SESSION.replace(":id", sessionId)
       );
-      return response.data as unknown as QuizResult;
+      return response.data.data;
     },
     enabled: !!sessionId,
   });
@@ -300,10 +315,13 @@ export function useQuizHistory(page = 1, limit = 20) {
   return useQuery({
     queryKey: [...queryKeys.quiz.all, "history", page, limit],
     queryFn: async () => {
-      const response = await apiClient.get<PaginatedSessions>(API_ENDPOINTS.QUIZ.HISTORY, {
-        params: { page, limit },
-      });
-      return response.data;
+      const response = await apiClient.get<ApiResponse<PaginatedSessions>>(
+        API_ENDPOINTS.QUIZ.HISTORY,
+        {
+          params: { page, limit },
+        }
+      );
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -323,8 +341,10 @@ export function usePrefetchCategories() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.quiz.categories(),
       queryFn: async () => {
-        const response = await apiClient.get<Category[]>(API_ENDPOINTS.QUIZ.CATEGORIES);
-        return response.data;
+        const response = await apiClient.get<ApiResponse<Category[]>>(
+          API_ENDPOINTS.QUIZ.CATEGORIES
+        );
+        return response.data.data;
       },
     });
   };

@@ -14,6 +14,15 @@ import { queryKeys } from "./query-client";
 import { useAuthStore } from "@/stores/auth.store";
 
 /**
+ * API response wrapper type
+ */
+interface ApiResponseWrapper<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
+/**
  * Login mutation hook
  */
 export function useLogin() {
@@ -22,11 +31,11 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (data: LoginRequest) => {
-      const response = await apiClient.post<AuthResponse>(
+      const response = await apiClient.post<ApiResponseWrapper<AuthResponse>>(
         API_ENDPOINTS.AUTH.LOGIN,
         data
       );
-      return response.data;
+      return response.data.data;
     },
     onSuccess: (data) => {
       setTokens(data.accessToken, data.refreshToken);
@@ -48,11 +57,11 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: async (data: RegisterRequest) => {
-      const response = await apiClient.post<AuthResponse>(
+      const response = await apiClient.post<ApiResponseWrapper<AuthResponse>>(
         API_ENDPOINTS.AUTH.REGISTER,
         data
       );
-      return response.data;
+      return response.data.data;
     },
     onSuccess: (data) => {
       setTokens(data.accessToken, data.refreshToken);
@@ -120,8 +129,8 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: queryKeys.user.profile(),
     queryFn: async () => {
-      const response = await apiClient.get<User>(API_ENDPOINTS.USER.PROFILE);
-      return response.data;
+      const response = await apiClient.get<ApiResponseWrapper<User>>(API_ENDPOINTS.USER.PROFILE);
+      return response.data.data;
     },
     enabled: isAuthenticated,
     staleTime: 1000 * 60 * 10, // 10 minutes
@@ -136,11 +145,13 @@ export function useRefreshToken() {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post<{
-        accessToken: string;
-        refreshToken: string;
-      }>(API_ENDPOINTS.AUTH.REFRESH, { refreshToken });
-      return response.data;
+      const response = await apiClient.post<
+        ApiResponseWrapper<{
+          accessToken: string;
+          refreshToken: string;
+        }>
+      >(API_ENDPOINTS.AUTH.REFRESH, { refreshToken });
+      return response.data.data;
     },
     onSuccess: (data) => {
       setTokens(data.accessToken, data.refreshToken);

@@ -10,6 +10,15 @@ import { apiClient } from "./api-client";
 import { queryKeys } from "./query-client";
 
 /**
+ * API response wrapper type (backend wraps all responses)
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
+/**
  * Leaderboard period enum matching backend
  */
 export type LeaderboardPeriod = "DAILY" | "WEEKLY" | "MONTHLY" | "ALL_TIME";
@@ -32,11 +41,11 @@ export function useGlobalLeaderboard(filter?: LeaderboardFilter) {
   return useQuery({
     queryKey: queryKeys.leaderboard.global(period),
     queryFn: async () => {
-      const response = await apiClient.get<LeaderboardResponseNew>(
+      const response = await apiClient.get<ApiResponse<LeaderboardResponseNew>>(
         API_ENDPOINTS.LEADERBOARD.GLOBAL,
         { params: filter }
       );
-      return response.data;
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -52,10 +61,10 @@ export function useCategoryLeaderboard(categoryId: string, filter?: LeaderboardF
     queryKey: queryKeys.leaderboard.category(categoryId, period),
     queryFn: async () => {
       const endpoint = API_ENDPOINTS.LEADERBOARD.CATEGORY.replace(":id", categoryId);
-      const response = await apiClient.get<LeaderboardResponseNew>(endpoint, {
+      const response = await apiClient.get<ApiResponse<LeaderboardResponseNew>>(endpoint, {
         params: filter,
       });
-      return response.data;
+      return response.data.data;
     },
     enabled: !!categoryId,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -69,10 +78,13 @@ export function useUserRank(filter?: LeaderboardFilter) {
   return useQuery({
     queryKey: [...queryKeys.leaderboard.all, "userRank", filter?.period],
     queryFn: async () => {
-      const response = await apiClient.get<UserRankResponse>(API_ENDPOINTS.LEADERBOARD.USER_RANK, {
-        params: filter,
-      });
-      return response.data;
+      const response = await apiClient.get<ApiResponse<UserRankResponse>>(
+        API_ENDPOINTS.LEADERBOARD.USER_RANK,
+        {
+          params: filter,
+        }
+      );
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -86,10 +98,10 @@ export function useUserCategoryRank(categoryId: string, filter?: LeaderboardFilt
     queryKey: [...queryKeys.leaderboard.all, "userCategoryRank", categoryId, filter?.period],
     queryFn: async () => {
       const endpoint = API_ENDPOINTS.LEADERBOARD.USER_CATEGORY_RANK.replace(":id", categoryId);
-      const response = await apiClient.get<UserRankResponse>(endpoint, {
+      const response = await apiClient.get<ApiResponse<UserRankResponse>>(endpoint, {
         params: filter,
       });
-      return response.data;
+      return response.data.data;
     },
     enabled: !!categoryId,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -107,11 +119,11 @@ export function usePrefetchLeaderboard() {
       queryClient.prefetchQuery({
         queryKey: queryKeys.leaderboard.global(period),
         queryFn: async () => {
-          const response = await apiClient.get<LeaderboardResponseNew>(
+          const response = await apiClient.get<ApiResponse<LeaderboardResponseNew>>(
             API_ENDPOINTS.LEADERBOARD.GLOBAL,
             { params: { period } }
           );
-          return response.data;
+          return response.data.data;
         },
       });
     },
@@ -120,10 +132,10 @@ export function usePrefetchLeaderboard() {
         queryKey: queryKeys.leaderboard.category(categoryId, period),
         queryFn: async () => {
           const endpoint = API_ENDPOINTS.LEADERBOARD.CATEGORY.replace(":id", categoryId);
-          const response = await apiClient.get<LeaderboardResponseNew>(endpoint, {
+          const response = await apiClient.get<ApiResponse<LeaderboardResponseNew>>(endpoint, {
             params: { period },
           });
-          return response.data;
+          return response.data.data;
         },
       });
     },

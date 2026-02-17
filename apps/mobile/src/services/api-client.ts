@@ -1,14 +1,15 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  InternalAxiosRequestConfig,
-} from "axios";
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 import { storage } from "@/utils/storage";
 
 // API Base URL - should be configured via environment variable
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+
+// Debug logging for API configuration
+if (__DEV__) {
+  console.log("[API Client] Base URL:", API_BASE_URL);
+  console.log("[API Client] ENV value:", process.env.EXPO_PUBLIC_API_URL);
+}
 
 /**
  * Create axios instance with default config
@@ -31,9 +32,15 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    if (__DEV__) {
+      console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+    }
     return config;
   },
   (error: AxiosError) => {
+    if (__DEV__) {
+      console.error("[API] Request error:", error.message);
+    }
     return Promise.reject(error);
   }
 );
@@ -42,8 +49,19 @@ apiClient.interceptors.request.use(
  * Response interceptor - handles token refresh and errors
  */
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (__DEV__) {
+      console.log(`[API] Response ${response.status} from ${response.config.url}`);
+    }
+    return response;
+  },
   async (error: AxiosError) => {
+    if (__DEV__) {
+      console.error(`[API] Error ${error.response?.status || "NETWORK"}: ${error.message}`);
+      if (error.response?.data) {
+        console.error("[API] Error data:", JSON.stringify(error.response.data));
+      }
+    }
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -63,8 +81,8 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-          response.data;
+        // Backend wraps response in { success, data, timestamp }
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
 
         // Update tokens in storage
         storage.set("accessToken", newAccessToken);

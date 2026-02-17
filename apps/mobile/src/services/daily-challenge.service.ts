@@ -4,6 +4,15 @@ import { API_ENDPOINTS } from "@quizapp/shared";
 import { apiClient, getApiErrorMessage } from "./api-client";
 import { queryKeys } from "./query-client";
 
+/**
+ * API response wrapper type (backend wraps all responses)
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
 // ============================================
 // Types matching backend DTOs
 // ============================================
@@ -112,10 +121,10 @@ export function useTodayChallenge() {
   return useQuery({
     queryKey: queryKeys.dailyChallenge.today(),
     queryFn: async () => {
-      const response = await apiClient.get<DailyChallengeWithStatus>(
+      const response = await apiClient.get<ApiResponse<DailyChallengeWithStatus>>(
         API_ENDPOINTS.DAILY_CHALLENGE.TODAY
       );
-      return response.data;
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -128,10 +137,10 @@ export function useDailyChallengeStatus() {
   return useQuery({
     queryKey: [...queryKeys.dailyChallenge.all, "status"],
     queryFn: async () => {
-      const response = await apiClient.get<DailyChallengeStatus>(
+      const response = await apiClient.get<ApiResponse<DailyChallengeStatus>>(
         API_ENDPOINTS.DAILY_CHALLENGE.STATUS
       );
-      return response.data;
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
@@ -144,8 +153,10 @@ export function useUserStreak() {
   return useQuery({
     queryKey: queryKeys.dailyChallenge.streak(),
     queryFn: async () => {
-      const response = await apiClient.get<UserStreak>(API_ENDPOINTS.DAILY_CHALLENGE.STREAK);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<UserStreak>>(
+        API_ENDPOINTS.DAILY_CHALLENGE.STREAK
+      );
+      return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -163,10 +174,10 @@ export function useStartDailyChallenge() {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post<StartAttemptResponse>(
+      const response = await apiClient.post<ApiResponse<StartAttemptResponse>>(
         API_ENDPOINTS.DAILY_CHALLENGE.START
       );
-      return response.data;
+      return response.data.data;
     },
     onSuccess: () => {
       // Invalidate today's challenge status
@@ -188,11 +199,11 @@ export function useCompleteDailyChallenge() {
 
   return useMutation({
     mutationFn: async (data: CompleteAttemptRequest) => {
-      const response = await apiClient.post<DailyChallengeResult>(
+      const response = await apiClient.post<ApiResponse<DailyChallengeResult>>(
         API_ENDPOINTS.DAILY_CHALLENGE.COMPLETE,
         data
       );
-      return response.data;
+      return response.data.data;
     },
     onSuccess: () => {
       // Invalidate all daily challenge queries

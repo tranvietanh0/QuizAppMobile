@@ -19,6 +19,7 @@ import {
 } from "@gluestack-ui/themed";
 
 import { useAuthStore } from "@/stores/auth.store";
+import { getApiErrorMessage } from "@/services/api-client";
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState("");
@@ -52,8 +53,10 @@ export default function RegisterScreen() {
     try {
       await register(email, username, password);
       router.replace("/(main)/(tabs)");
-    } catch {
-      setError("Registration failed. Please try again.");
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(err);
+      console.error("[Register] Error:", errorMessage, err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

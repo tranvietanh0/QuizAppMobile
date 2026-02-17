@@ -19,6 +19,7 @@ import {
 } from "@gluestack-ui/themed";
 
 import { useAuthStore } from "@/stores/auth.store";
+import { getApiErrorMessage } from "@/services/api-client";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -40,8 +41,10 @@ export default function LoginScreen() {
     try {
       await login(email, password);
       router.replace("/(main)/(tabs)");
-    } catch {
-      setError("Login failed. Please check your credentials.");
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(err);
+      console.error("[Login] Error:", errorMessage, err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

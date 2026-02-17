@@ -84,12 +84,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true });
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/login", {
+      const response = await apiClient.post<{ data: AuthResponse }>("/auth/login", {
         email,
         password,
       });
 
-      const { user, accessToken, refreshToken } = response.data;
+      // Backend wraps response in { success, data, timestamp }
+      const { user, accessToken, refreshToken } = response.data.data;
 
       // Persist to storage
       await Promise.all([
@@ -117,13 +118,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   register: async (email: string, username: string, password: string) => {
     set({ isLoading: true });
     try {
-      const response = await apiClient.post<AuthResponse>("/auth/register", {
+      console.log("[Auth Store] Attempting registration for:", email);
+      const response = await apiClient.post<{ data: AuthResponse }>("/auth/register", {
         email,
         username,
         password,
       });
+      console.log("[Auth Store] Registration successful");
 
-      const { user, accessToken, refreshToken } = response.data;
+      // Backend wraps response in { success, data, timestamp }
+      const { user, accessToken, refreshToken } = response.data.data;
 
       // Persist to storage
       await Promise.all([
@@ -140,6 +144,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isLoading: false,
       });
     } catch (error) {
+      console.error("[Auth Store] Registration failed:", error);
       set({ isLoading: false });
       throw error;
     }
@@ -170,11 +175,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const response = await apiClient.post<{
-        accessToken: string;
-        refreshToken: string;
+        data: { accessToken: string; refreshToken: string };
       }>("/auth/refresh", { refreshToken });
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
+      // Backend wraps response in { success, data, timestamp }
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
 
       // Update storage
       await Promise.all([
