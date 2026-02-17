@@ -1,0 +1,66 @@
+# Label configuration for GitHub Actions labeler
+# Used by actions/labeler to auto-label PRs based on changed files
+
+# Backend changes
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'apps/backend/**'
+
+# Mobile changes
+mobile:
+  - changed-files:
+      - any-glob-to-any-file: 'apps/mobile/**'
+
+# Admin changes
+admin:
+  - changed-files:
+      - any-glob-to-any-file: 'apps/admin/**'
+
+# Shared package changes
+shared:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/**'
+
+# Documentation changes
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**'
+
+# CI/CD changes
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '*.yml'
+          - '*.yaml'
+
+# Configuration changes
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'package.json'
+          - 'pnpm-workspace.yaml'
+          - 'turbo.json'
+          - 'tsconfig*.json'
+          - '.eslintrc*'
+          - '.prettierrc*'
+
+# Database changes
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/backend/prisma/**'
+          - '**/migrations/**'
+
+# Test changes
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.spec.ts'
+          - '**/*.test.ts'
+          - '**/*.spec.tsx'
+          - '**/*.test.tsx'
+          - '**/test/**'
+          - '**/__tests__/**'

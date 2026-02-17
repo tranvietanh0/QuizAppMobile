@@ -1,0 +1,24 @@
+# CODEOWNERS - Define code owners for automatic PR review requests
+
+# Default owners for everything in the repo
+* @quizapp/core-team
+
+# Backend specific
+/apps/backend/ @quizapp/backend-team
+
+# Mobile specific
+/apps/mobile/ @quizapp/mobile-team
+
+# Admin specific
+/apps/admin/ @quizapp/frontend-team
+
+# Shared packages
+/packages/ @quizapp/core-team
+
+# CI/CD and infrastructure
+/.github/ @quizapp/devops-team
+/docker* @quizapp/devops-team
+
+# Documentation
+/docs/ @quizapp/core-team
+*.md @quizapp/core-team
