@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Disable static export for dynamic app
+  output: undefined,
+  // Handle dynamic routes
+  experimental: {
+    // Allow dynamic server usage
+  },
 };
 
 export default nextConfig;
