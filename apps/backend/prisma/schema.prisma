@@ -11,6 +11,15 @@ datasource db {
 }
 
 // ============================================
+// Role Enum
+// ============================================
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ============================================
 // User & Authentication Models
 // ============================================
 
@@ -22,6 +31,7 @@ model User {
   avatarUrl       String?   @map("avatar_url")
   password        String?   // Nullable for social login users
   isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  role            Role      @default(USER)
 
   // Social login identifiers
   googleId        String?   @unique @map("google_id")

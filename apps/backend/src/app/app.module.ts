@@ -13,6 +13,7 @@ import { QuestionsModule } from "../questions/questions.module";
 import { QuizSessionsModule } from "../quiz-sessions/quiz-sessions.module";
 import { LeaderboardsModule } from "../leaderboards/leaderboards.module";
 import { DailyChallengesModule } from "../daily-challenges/daily-challenges.module";
+import { AdminModule } from "../admin/admin.module";
 import { JwtAuthGuard } from "../common/guards";
 
 @Module({
@@ -39,6 +40,7 @@ import { JwtAuthGuard } from "../common/guards";
     QuizSessionsModule,
     LeaderboardsModule,
     DailyChallengesModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

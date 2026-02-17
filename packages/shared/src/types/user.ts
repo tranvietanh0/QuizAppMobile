@@ -1,6 +1,8 @@
 // User-related type definitions
 // Các types liên quan đến User
 
+import { Role } from "./admin";
+
 export interface User {
   id: string;
   email: string;
@@ -8,6 +10,7 @@ export interface User {
   displayName: string | null;
   avatarUrl: string | null;
   isEmailVerified: boolean;
+  role: Role;
   createdAt: Date;
   updatedAt: Date;
 }

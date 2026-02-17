@@ -10,3 +10,4 @@ export * from "./multiplayer";
 export * from "./achievement";
 export * from "./daily-challenge";
 export * from "./notification";
+export * from "./admin";

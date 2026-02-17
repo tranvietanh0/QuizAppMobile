@@ -56,6 +56,15 @@ export const API_ENDPOINTS = {
     PREFERENCES: "/notifications/preferences",
     REGISTER_DEVICE: "/notifications/device",
   },
+  ADMIN: {
+    DASHBOARD: "/admin/dashboard",
+    CATEGORIES: "/categories",
+    CATEGORY: "/categories/:id",
+    QUESTIONS: "/questions",
+    QUESTION: "/questions/:id",
+    USERS: "/users",
+    USER: "/users/:id",
+  },
 } as const;
 
 // Error Codes

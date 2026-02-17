@@ -62,6 +62,7 @@ export class AuthService {
         displayName: true,
         avatarUrl: true,
         isEmailVerified: true,
+        role: true,
       },
     });
 
@@ -115,6 +116,7 @@ export class AuthService {
       displayName: user.displayName,
       avatarUrl: user.avatarUrl,
       isEmailVerified: user.isEmailVerified,
+      role: user.role,
     };
   }
 
@@ -150,6 +152,7 @@ export class AuthService {
         displayName: true,
         avatarUrl: true,
         isEmailVerified: true,
+        role: true,
       },
     });
 
@@ -221,6 +224,7 @@ export class AuthService {
         displayName: user.displayName,
         avatarUrl: user.avatarUrl,
         isEmailVerified: user.isEmailVerified,
+        role: user.role,
       },
       accessToken,
       refreshToken,
