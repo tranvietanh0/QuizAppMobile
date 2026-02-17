@@ -45,6 +45,7 @@ const defaultPreferences: UserPreferences = {
   vibrationEnabled: true,
   notificationsEnabled: true,
   darkMode: false,
+  themePreference: "system",
 };
 
 /**

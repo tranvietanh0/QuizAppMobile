@@ -7,11 +7,38 @@ import * as SplashScreen from "expo-splash-screen";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
 
 import { config as gluestackConfig } from "@/theme/gluestack.config";
+import { ThemeProvider, useTheme } from "@/theme";
 import { queryClient } from "@/services/query-client";
 import { useAuthStore } from "@/stores/auth.store";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
+
+/**
+ * Inner layout component that can access theme context
+ */
+function ThemedLayout() {
+  const { isDark, colors } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right",
+          contentStyle: {
+            backgroundColor: colors.background,
+          },
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(main)" />
+      </Stack>
+    </>
+  );
+}
 
 export default function RootLayout() {
   const { initialize, isInitialized } = useAuthStore();
@@ -39,19 +66,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <GluestackUIProvider config={gluestackConfig}>
-          <StatusBar style="auto" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: "slide_from_right",
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(main)" />
-          </Stack>
-        </GluestackUIProvider>
+        <ThemeProvider>
+          <GluestackUIProvider config={gluestackConfig}>
+            <ThemedLayout />
+          </GluestackUIProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

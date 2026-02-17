@@ -1,28 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Button,
-  ButtonText,
-  Pressable,
-  Center,
-  Progress,
-  ProgressFilledTrack,
-  Spinner,
-} from "@gluestack-ui/themed";
+import { View, Text, StyleSheet, ActivityIndicator, Alert, BackHandler } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Alert, BackHandler } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  withSequence,
+  FadeIn as RNFadeIn,
+  FadeInRight,
+  FadeOut,
+  Layout,
+} from "react-native-reanimated";
 
 import { useSubmitAnswer, useCompleteQuiz, useAbandonQuiz } from "@/services";
 import { useQuizStore } from "@/stores/quiz.store";
+import { useColors } from "@/theme";
+import { timing, easing, entrance } from "@/theme/animations";
+import { AnimatedPressable, FadeIn, Card } from "@/components/ui";
 
 export default function QuizPlayScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
+  const colors = useColors();
 
   const {
     questions,
@@ -51,8 +51,30 @@ export default function QuizPlayScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
+  // Animation values
+  const progressWidth = useSharedValue(0);
+  const timerPulse = useSharedValue(0);
+
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+  // Update progress bar animation
+  useEffect(() => {
+    progressWidth.value = withTiming(progress, {
+      duration: timing.normal,
+      easing: easing.easeOut,
+    });
+  }, [progress, progressWidth]);
+
+  // Timer pulse animation when low
+  useEffect(() => {
+    if (timeRemaining <= 10 && timeRemaining > 0) {
+      timerPulse.value = withSequence(
+        withTiming(1, { duration: 150 }),
+        withTiming(0, { duration: 150 })
+      );
+    }
+  }, [timeRemaining, timerPulse]);
 
   // Timer effect
   useEffect(() => {
@@ -125,7 +147,6 @@ export default function QuizPlayScreen() {
     selectAnswer("");
 
     if (currentQuestionIndex >= questions.length - 1) {
-      // Last question - complete the quiz
       handleCompleteQuiz();
     } else {
       nextQuestion();
@@ -166,175 +187,321 @@ export default function QuizPlayScreen() {
     ]);
   };
 
+  // Animated styles
+  const progressBarStyle = useAnimatedStyle(() => ({
+    width: `${progressWidth.value}%`,
+  }));
+
+  const timerStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + timerPulse.value * 0.1 }],
+  }));
+
   if (!currentQuestion) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-        <Center flex={1}>
-          <Spinner size="large" color="$primary600" />
-        </Center>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       </SafeAreaView>
     );
   }
 
   const getOptionStyle = (option: string) => {
     if (!showResult) {
+      const isSelected = selectedAnswer === option;
       return {
-        bg: selectedAnswer === option ? "$primary50" : "$white",
-        borderColor: selectedAnswer === option ? "$primary600" : "$borderLight200",
+        backgroundColor: isSelected ? colors.primary + "15" : colors.card,
+        borderColor: isSelected ? colors.primary : colors.cardBorder,
       };
     }
 
     if (option === lastResult?.correctAnswer) {
-      return { bg: "#DCFCE7", borderColor: "#22C55E" };
+      return {
+        backgroundColor: colors.correctAnswer + "15",
+        borderColor: colors.correctAnswer,
+      };
     }
     if (option === selectedAnswer && !lastResult?.isCorrect) {
-      return { bg: "#FEE2E2", borderColor: "#EF4444" };
+      return {
+        backgroundColor: colors.wrongAnswer + "15",
+        borderColor: colors.wrongAnswer,
+      };
     }
-    return { bg: "$white", borderColor: "$borderLight200" };
+    return {
+      backgroundColor: colors.card,
+      borderColor: colors.cardBorder,
+    };
   };
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <Box flex={1} px="$4" py="$4">
-        {/* Header */}
-        <HStack justifyContent="space-between" alignItems="center" mb="$4">
-          <Pressable onPress={handleQuit} p="$2">
-            <Ionicons name="close" size={24} color="#6B7280" />
-          </Pressable>
+  const isLowTime = timeRemaining <= 10;
 
-          <HStack alignItems="center" space="xs">
-            <Ionicons name="time-outline" size={20} color="#6B7280" />
-            <Text
-              size="lg"
-              fontWeight="$bold"
-              color={timeRemaining <= 10 ? "$error600" : "$textDark900"}
-            >
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <AnimatedPressable onPress={handleQuit} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={colors.textSecondary} />
+          </AnimatedPressable>
+
+          <Animated.View style={[styles.timerContainer, timerStyle]}>
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color={isLowTime ? colors.error : colors.textSecondary}
+            />
+            <Text style={[styles.timerText, { color: isLowTime ? colors.error : colors.text }]}>
               {timeRemaining}s
             </Text>
-          </HStack>
-        </HStack>
+          </Animated.View>
+        </View>
 
         {/* Progress */}
-        <VStack space="xs" mb="$6">
-          <HStack justifyContent="space-between">
-            <Text size="sm" color="$textLight500">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </Text>
-          </HStack>
-          <Progress value={progress} size="sm" bg="$backgroundLight200">
-            <ProgressFilledTrack bg="$primary600" />
-          </Progress>
-        </VStack>
+        <FadeIn delay={100}>
+          <View style={styles.progressSection}>
+            <View style={styles.progressTextRow}>
+              <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </Text>
+            </View>
+            <View style={[styles.progressBarBg, { backgroundColor: colors.backgroundSecondary }]}>
+              <Animated.View
+                style={[
+                  styles.progressBarFill,
+                  { backgroundColor: colors.primary },
+                  progressBarStyle,
+                ]}
+              />
+            </View>
+          </View>
+        </FadeIn>
 
         {/* Question */}
-        <Box
-          bg="$backgroundLight50"
-          rounded="$xl"
-          p="$5"
-          mb="$6"
-          borderWidth={1}
-          borderColor="$borderLight200"
+        <Animated.View
+          key={currentQuestionIndex}
+          entering={FadeInRight.duration(timing.normal)}
+          exiting={FadeOut.duration(timing.fast)}
         >
-          <Heading size="md" color="$textDark900" textAlign="center">
-            {currentQuestion.content}
-          </Heading>
-        </Box>
+          <Card variant="filled" padding="lg" radius="xl" style={styles.questionCard}>
+            <Text style={[styles.questionText, { color: colors.text }]}>
+              {currentQuestion.content}
+            </Text>
+          </Card>
+        </Animated.View>
 
         {/* Options */}
-        <VStack space="sm" flex={1}>
+        <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option, index) => {
             const style = getOptionStyle(option);
             const optionLetter = String.fromCharCode(65 + index);
+            const isSelected = selectedAnswer === option;
+            const isCorrect = showResult && option === lastResult?.correctAnswer;
+            const isWrong = showResult && option === selectedAnswer && !lastResult?.isCorrect;
 
             return (
-              <Pressable
+              <Animated.View
                 key={index}
-                onPress={() => !showResult && selectAnswer(option)}
-                disabled={showResult}
+                entering={RNFadeIn.delay(index * entrance.staggerDelay).duration(timing.normal)}
+                layout={Layout.springify()}
               >
-                <Box
-                  p="$4"
-                  rounded="$lg"
-                  borderWidth={2}
-                  bg={style.bg}
-                  borderColor={style.borderColor}
+                <AnimatedPressable
+                  onPress={() => !showResult && selectAnswer(option)}
+                  disabled={showResult}
+                  style={[styles.optionButton, style]}
+                  disableAnimation={showResult}
                 >
-                  <HStack alignItems="center" space="md">
-                    <Center
-                      w="$8"
-                      h="$8"
-                      rounded="$full"
-                      bg={
-                        selectedAnswer === option && !showResult
-                          ? "$primary600"
-                          : "$backgroundLight200"
-                      }
+                  <View
+                    style={[
+                      styles.optionLetter,
+                      {
+                        backgroundColor:
+                          isSelected && !showResult ? colors.primary : colors.backgroundSecondary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.optionLetterText,
+                        {
+                          color: isSelected && !showResult ? "#FFFFFF" : colors.textSecondary,
+                        },
+                      ]}
                     >
-                      <Text
-                        size="sm"
-                        fontWeight="$bold"
-                        color={
-                          selectedAnswer === option && !showResult ? "$white" : "$textLight600"
-                        }
-                      >
-                        {optionLetter}
-                      </Text>
-                    </Center>
-                    <Text flex={1} size="md" color="$textDark900">
-                      {option}
+                      {optionLetter}
                     </Text>
-                    {showResult && option === lastResult?.correctAnswer && (
-                      <Ionicons name="checkmark-circle" size={24} color="#22C55E" />
-                    )}
-                    {showResult && option === selectedAnswer && !lastResult?.isCorrect && (
-                      <Ionicons name="close-circle" size={24} color="#EF4444" />
-                    )}
-                  </HStack>
-                </Box>
-              </Pressable>
+                  </View>
+                  <Text style={[styles.optionText, { color: colors.text }]} numberOfLines={3}>
+                    {option}
+                  </Text>
+                  {isCorrect && (
+                    <Ionicons name="checkmark-circle" size={24} color={colors.correctAnswer} />
+                  )}
+                  {isWrong && <Ionicons name="close-circle" size={24} color={colors.wrongAnswer} />}
+                </AnimatedPressable>
+              </Animated.View>
             );
           })}
-        </VStack>
+        </View>
 
         {/* Result explanation */}
         {showResult && lastResult?.explanation && (
-          <Box bg="$backgroundLight50" rounded="$lg" p="$4" my="$4">
-            <Text size="sm" color="$textLight600">
-              {lastResult.explanation}
-            </Text>
-          </Box>
+          <FadeIn>
+            <Card variant="filled" padding="md" radius="lg" style={styles.explanationCard}>
+              <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
+                {lastResult.explanation}
+              </Text>
+            </Card>
+          </FadeIn>
         )}
 
         {/* Submit/Next Button */}
-        <Box mt="$4">
+        <View style={styles.buttonContainer}>
           {!showResult ? (
-            <Button
-              size="xl"
-              bg="$primary600"
-              rounded="$xl"
+            <AnimatedPressable
               onPress={handleSubmitAnswer}
-              isDisabled={!selectedAnswer || submitAnswerMutation.isPending}
+              disabled={!selectedAnswer || submitAnswerMutation.isPending}
+              style={[
+                styles.submitButton,
+                {
+                  backgroundColor: colors.primary,
+                  opacity: !selectedAnswer || submitAnswerMutation.isPending ? 0.5 : 1,
+                },
+              ]}
             >
               {submitAnswerMutation.isPending ? (
-                <Spinner color="$white" />
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <ButtonText fontWeight="$bold">Submit Answer</ButtonText>
+                <Text style={styles.submitButtonText}>Submit Answer</Text>
               )}
-            </Button>
+            </AnimatedPressable>
           ) : (
-            <Button
-              size="xl"
-              bg={lastResult?.isCorrect ? "$success600" : "$primary600"}
-              rounded="$xl"
+            <AnimatedPressable
               onPress={handleNextQuestion}
+              style={[
+                styles.submitButton,
+                {
+                  backgroundColor: lastResult?.isCorrect ? colors.correctAnswer : colors.primary,
+                },
+              ]}
             >
-              <ButtonText fontWeight="$bold">
+              <Text style={styles.submitButtonText}>
                 {currentQuestionIndex >= questions.length - 1 ? "See Results" : "Next Question"}
-              </ButtonText>
-            </Button>
+              </Text>
+            </AnimatedPressable>
           )}
-        </Box>
-      </Box>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  closeButton: {
+    padding: 8,
+  },
+  timerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  timerText: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  progressSection: {
+    marginBottom: 24,
+  },
+  progressTextRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  progressText: {
+    fontSize: 14,
+  },
+  progressBarBg: {
+    height: 6,
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  questionCard: {
+    marginBottom: 24,
+  },
+  questionText: {
+    fontSize: 18,
+    fontWeight: "600",
+    textAlign: "center",
+    lineHeight: 26,
+  },
+  optionsContainer: {
+    flex: 1,
+    gap: 12,
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    gap: 12,
+  },
+  optionLetter: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  optionLetterText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  optionText: {
+    flex: 1,
+    fontSize: 16,
+  },
+  explanationCard: {
+    marginVertical: 16,
+  },
+  explanationText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  buttonContainer: {
+    marginTop: 16,
+  },
+  submitButton: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  submitButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+});

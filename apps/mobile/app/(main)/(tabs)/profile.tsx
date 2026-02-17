@@ -1,49 +1,32 @@
-import { ScrollView, Alert } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Alert, Switch } from "react-native";
 import { router } from "expo-router";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Center,
-  Avatar,
-  AvatarFallbackText,
-  Pressable,
-  Icon,
-  SettingsIcon,
-  ChevronRightIcon,
-} from "@gluestack-ui/themed";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuthStore } from "@/stores/auth.store";
+import { useTheme, useColors } from "@/theme";
+import { FadeIn, AnimatedPressable, Card, ListItem } from "@/components/ui";
 
 // Stats mock data
 const STATS = [
-  { label: "Tong quiz", value: "24" },
-  { label: "Dung", value: "85%" },
+  { label: "Quizzes", value: "24" },
+  { label: "Accuracy", value: "85%" },
   { label: "Streak", value: "5" },
-];
-
-// Menu items
-const MENU_ITEMS = [
-  { id: "achievements", label: "Thanh tich", icon: "trophy" },
-  { id: "history", label: "Lich su choi", icon: "clock" },
-  { id: "settings", label: "Cai dat", icon: "settings" },
-  { id: "help", label: "Tro giup", icon: "help" },
 ];
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const { isDark, toggleTheme, preference } = useTheme();
+  const colors = useColors();
 
   const handleLogout = () => {
-    Alert.alert("Dang xuat", "Ban co chac chan muon dang xuat?", [
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       {
-        text: "Huy",
+        text: "Cancel",
         style: "cancel",
       },
       {
-        text: "Dang xuat",
+        text: "Sign Out",
         style: "destructive",
         onPress: async () => {
           await logout();
@@ -59,128 +42,268 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Box px="$4" py="$6">
+        <View style={styles.content}>
           {/* Header */}
-          <HStack justifyContent="space-between" alignItems="center" mb="$6">
-            <Heading size="2xl" color="$textDark900">
-              Ho so
-            </Heading>
-            <Pressable
-              p="$2"
-              rounded="$full"
-              bg="$backgroundLight100"
-              onPress={() => handleMenuPress("settings")}
-            >
-              <Icon as={SettingsIcon} size="xl" color="$textDark700" />
-            </Pressable>
-          </HStack>
+          <FadeIn delay={0}>
+            <View style={styles.header}>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
+              <AnimatedPressable
+                style={[styles.settingsButton, { backgroundColor: colors.backgroundSecondary }]}
+                onPress={() => handleMenuPress("settings")}
+              >
+                <Ionicons name="settings-outline" size={22} color={colors.text} />
+              </AnimatedPressable>
+            </View>
+          </FadeIn>
 
           {/* Profile Card */}
-          <Box
-            bg="$primary600"
-            rounded="$2xl"
-            p="$6"
-            mb="$6"
-            overflow="hidden"
-          >
-            <HStack space="lg" alignItems="center">
-              <Avatar size="xl" bgColor="$white">
-                <AvatarFallbackText>
-                  {user?.displayName?.charAt(0) ||
-                    user?.username?.charAt(0) ||
-                    "U"}
-                </AvatarFallbackText>
-              </Avatar>
-              <VStack flex={1}>
-                <Heading size="lg" color="$white">
-                  {user?.displayName || user?.username || "Nguoi dung"}
-                </Heading>
-                <Text size="sm" color="$white" opacity={0.8} mt="$1">
-                  {user?.email || "email@example.com"}
-                </Text>
-              </VStack>
-            </HStack>
+          <FadeIn delay={100}>
+            <View style={[styles.profileCard, { backgroundColor: colors.primary }]}>
+              <View style={styles.profileCardContent}>
+                <View style={styles.avatarContainer}>
+                  <Text style={styles.avatarText}>
+                    {user?.displayName?.charAt(0) || user?.username?.charAt(0) || "U"}
+                  </Text>
+                </View>
+                <View style={styles.profileInfo}>
+                  <Text style={styles.profileName}>
+                    {user?.displayName || user?.username || "User"}
+                  </Text>
+                  <Text style={styles.profileEmail}>{user?.email || "email@example.com"}</Text>
+                </View>
+              </View>
 
-            {/* Stats */}
-            <HStack mt="$6" justifyContent="space-around">
-              {STATS.map((stat, index) => (
-                <VStack key={index} alignItems="center">
-                  <Text size="xl" fontWeight="$bold" color="$white">
-                    {stat.value}
-                  </Text>
-                  <Text size="xs" color="$white" opacity={0.8}>
-                    {stat.label}
-                  </Text>
-                </VStack>
-              ))}
-            </HStack>
-          </Box>
+              {/* Stats */}
+              <View style={styles.statsRow}>
+                {STATS.map((stat, index) => (
+                  <View key={index} style={styles.statItem}>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </FadeIn>
+
+          {/* Theme Toggle */}
+          <FadeIn delay={200}>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
+              <Card variant="outlined" padding="none" radius="xl">
+                <View style={[styles.themeToggleRow, { borderBottomColor: colors.separator }]}>
+                  <View style={styles.themeToggleLeft}>
+                    <View style={[styles.themeIcon, { backgroundColor: colors.primary + "15" }]}>
+                      <Ionicons name={isDark ? "moon" : "sunny"} size={20} color={colors.primary} />
+                    </View>
+                    <View>
+                      <Text style={[styles.themeToggleTitle, { color: colors.text }]}>
+                        Dark Mode
+                      </Text>
+                      <Text style={[styles.themeToggleSubtitle, { color: colors.textTertiary }]}>
+                        {preference === "system" ? "Following system" : isDark ? "On" : "Off"}
+                      </Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={isDark}
+                    onValueChange={toggleTheme}
+                    trackColor={{
+                      false: colors.separator,
+                      true: colors.primary,
+                    }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+              </Card>
+            </View>
+          </FadeIn>
 
           {/* Menu Items */}
-          <VStack space="sm" mb="$6">
-            {MENU_ITEMS.map((item) => (
-              <Pressable key={item.id} onPress={() => handleMenuPress(item.id)}>
-                <Box
-                  bg="$backgroundLight50"
-                  rounded="$xl"
-                  p="$4"
-                  borderWidth={1}
-                  borderColor="$borderLight200"
-                >
-                  <HStack alignItems="center" justifyContent="space-between">
-                    <HStack alignItems="center" space="md">
-                      <Center
-                        w="$10"
-                        h="$10"
-                        rounded="$lg"
-                        bg="$primary100"
-                      >
-                        <Text color="$primary600" fontWeight="$bold">
-                          {item.label.charAt(0)}
-                        </Text>
-                      </Center>
-                      <Text size="md" fontWeight="$medium" color="$textDark900">
-                        {item.label}
-                      </Text>
-                    </HStack>
-                    <Icon
-                      as={ChevronRightIcon}
-                      size="lg"
-                      color="$textLight400"
-                    />
-                  </HStack>
-                </Box>
-              </Pressable>
-            ))}
-          </VStack>
+          <FadeIn delay={300}>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Account</Text>
+              <View style={styles.menuList}>
+                <ListItem
+                  title="Achievements"
+                  leftIcon="trophy-outline"
+                  onPress={() => handleMenuPress("achievements")}
+                />
+                <ListItem
+                  title="History"
+                  leftIcon="time-outline"
+                  onPress={() => handleMenuPress("history")}
+                />
+                <ListItem
+                  title="Settings"
+                  leftIcon="settings-outline"
+                  onPress={() => handleMenuPress("settings")}
+                />
+                <ListItem
+                  title="Help"
+                  leftIcon="help-circle-outline"
+                  onPress={() => handleMenuPress("help")}
+                />
+              </View>
+            </View>
+          </FadeIn>
 
           {/* Logout Button */}
-          <Pressable onPress={handleLogout}>
-            <Box
-              bg="$error100"
-              rounded="$xl"
-              p="$4"
-              borderWidth={1}
-              borderColor="$error200"
-            >
-              <Center>
-                <Text size="md" fontWeight="$semibold" color="$error600">
-                  Dang xuat
-                </Text>
-              </Center>
-            </Box>
-          </Pressable>
+          <FadeIn delay={400}>
+            <View style={styles.section}>
+              <ListItem
+                title="Sign Out"
+                leftIcon="log-out-outline"
+                leftIconBg={colors.error}
+                showChevron={false}
+                variant="danger"
+                onPress={handleLogout}
+              />
+            </View>
+          </FadeIn>
 
           {/* App Version */}
-          <Center mt="$8">
-            <Text size="xs" color="$textLight400">
-              Phien ban 1.0.0
-            </Text>
-          </Center>
-        </Box>
+          <FadeIn delay={500}>
+            <View style={styles.versionContainer}>
+              <Text style={[styles.versionText, { color: colors.textTertiary }]}>
+                Version 1.0.0
+              </Text>
+            </View>
+          </FadeIn>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileCard: {
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 24,
+  },
+  profileCardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatarContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#007AFF",
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.8)",
+    marginTop: 4,
+  },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 24,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.2)",
+  },
+  statItem: {
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
+    marginTop: 4,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+  themeToggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+  },
+  themeToggleLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  themeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  themeToggleTitle: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  themeToggleSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+  menuList: {
+    gap: 8,
+  },
+  versionContainer: {
+    alignItems: "center",
+    marginTop: 8,
+  },
+  versionText: {
+    fontSize: 12,
+  },
+});

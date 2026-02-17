@@ -28,6 +28,8 @@ export interface UserPreferences {
   vibrationEnabled: boolean;
   notificationsEnabled: boolean;
   darkMode: boolean;
+  /** Theme preference: 'light', 'dark', or 'system' */
+  themePreference?: "light" | "dark" | "system";
 }
 
 export interface UserStats {

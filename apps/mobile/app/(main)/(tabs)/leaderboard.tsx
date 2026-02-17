@@ -1,15 +1,9 @@
-import { ScrollView } from "react-native";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Center,
-  Avatar,
-  AvatarFallbackText,
-} from "@gluestack-ui/themed";
+import { ScrollView, View, Text, StyleSheet, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useCallback } from "react";
+
+import { useColors } from "@/theme";
+import { FadeIn, Card } from "@/components/ui";
 
 // Mock leaderboard data
 const LEADERBOARD_DATA = [
@@ -18,153 +12,328 @@ const LEADERBOARD_DATA = [
   { rank: 3, name: "Le Van C", score: 9580, avatar: "LC" },
   { rank: 4, name: "Pham Thi D", score: 9340, avatar: "PD" },
   { rank: 5, name: "Hoang Van E", score: 9100, avatar: "HE" },
+  { rank: 6, name: "Vo Van F", score: 8920, avatar: "VF" },
+  { rank: 7, name: "Dang Thi G", score: 8750, avatar: "DG" },
 ];
 
 function getRankColor(rank: number): string {
   switch (rank) {
     case 1:
-      return "#F59E0B"; // Gold
+      return "#FFD700"; // Gold
     case 2:
-      return "#9CA3AF"; // Silver
+      return "#C0C0C0"; // Silver
     case 3:
       return "#CD7F32"; // Bronze
     default:
-      return "#6366F1"; // Primary
+      return "#007AFF"; // Primary
   }
 }
 
 export default function LeaderboardScreen() {
+  const colors = useColors();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Box px="$4" py="$6">
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        <View style={styles.content}>
           {/* Header */}
-          <VStack space="xs" mb="$6">
-            <Heading size="2xl" color="$textDark900">
-              Bang xep hang
-            </Heading>
-            <Text size="md" color="$textLight500">
-              Top nguoi choi xuat sac nhat
-            </Text>
-          </VStack>
+          <FadeIn delay={0}>
+            <View style={styles.header}>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>Leaderboard</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+                Top players this week
+              </Text>
+            </View>
+          </FadeIn>
 
           {/* Top 3 Podium */}
-          <HStack justifyContent="center" alignItems="flex-end" mb="$8" px="$4">
-            {/* 2nd Place */}
-            <VStack alignItems="center" flex={1}>
-              <Avatar size="lg" bgColor="$secondary400">
-                <AvatarFallbackText>
-                  {LEADERBOARD_DATA[1]?.avatar}
-                </AvatarFallbackText>
-              </Avatar>
-              <Text size="sm" fontWeight="$semibold" mt="$2" numberOfLines={1}>
-                {LEADERBOARD_DATA[1]?.name.split(" ").pop()}
-              </Text>
-              <Box
-                bg="$backgroundLight100"
-                w="$full"
-                h="$20"
-                rounded="$lg"
-                mt="$2"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Text size="2xl" fontWeight="$bold" color="$textLight500">
-                  2
+          <FadeIn delay={100}>
+            <View style={styles.podium}>
+              {/* 2nd Place */}
+              <View style={styles.podiumItem}>
+                <View
+                  style={[
+                    styles.podiumAvatar,
+                    styles.podiumAvatarMedium,
+                    { backgroundColor: getRankColor(2) },
+                  ]}
+                >
+                  <Text style={styles.podiumAvatarText}>{LEADERBOARD_DATA[1]?.avatar}</Text>
+                </View>
+                <Text style={[styles.podiumName, { color: colors.text }]} numberOfLines={1}>
+                  {LEADERBOARD_DATA[1]?.name.split(" ").pop()}
                 </Text>
-              </Box>
-            </VStack>
+                <Text style={[styles.podiumScore, { color: colors.textSecondary }]}>
+                  {LEADERBOARD_DATA[1]?.score.toLocaleString()}
+                </Text>
+                <View
+                  style={[
+                    styles.podiumBase,
+                    styles.podiumBase2nd,
+                    { backgroundColor: colors.backgroundSecondary },
+                  ]}
+                >
+                  <Text style={[styles.podiumRank, { color: colors.textSecondary }]}>2</Text>
+                </View>
+              </View>
 
-            {/* 1st Place */}
-            <VStack alignItems="center" flex={1} mx="$2">
-              <Avatar size="xl" bgColor="$warning500">
-                <AvatarFallbackText>
-                  {LEADERBOARD_DATA[0]?.avatar}
-                </AvatarFallbackText>
-              </Avatar>
-              <Text size="sm" fontWeight="$semibold" mt="$2" numberOfLines={1}>
-                {LEADERBOARD_DATA[0]?.name.split(" ").pop()}
-              </Text>
-              <Box
-                bg="$warning100"
-                w="$full"
-                h="$24"
-                rounded="$lg"
-                mt="$2"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Text size="2xl" fontWeight="$bold" color="$warning600">
-                  1
+              {/* 1st Place */}
+              <View style={[styles.podiumItem, styles.podiumItemFirst]}>
+                <View style={styles.crownContainer}>
+                  <Text style={styles.crown}>👑</Text>
+                </View>
+                <View
+                  style={[
+                    styles.podiumAvatar,
+                    styles.podiumAvatarLarge,
+                    { backgroundColor: getRankColor(1) },
+                  ]}
+                >
+                  <Text style={[styles.podiumAvatarText, styles.podiumAvatarTextLarge]}>
+                    {LEADERBOARD_DATA[0]?.avatar}
+                  </Text>
+                </View>
+                <Text
+                  style={[styles.podiumName, styles.podiumNameFirst, { color: colors.text }]}
+                  numberOfLines={1}
+                >
+                  {LEADERBOARD_DATA[0]?.name.split(" ").pop()}
                 </Text>
-              </Box>
-            </VStack>
+                <Text style={[styles.podiumScore, { color: colors.warning }]}>
+                  {LEADERBOARD_DATA[0]?.score.toLocaleString()}
+                </Text>
+                <View
+                  style={[
+                    styles.podiumBase,
+                    styles.podiumBase1st,
+                    { backgroundColor: colors.warning + "20" },
+                  ]}
+                >
+                  <Text style={[styles.podiumRank, { color: colors.warning }]}>1</Text>
+                </View>
+              </View>
 
-            {/* 3rd Place */}
-            <VStack alignItems="center" flex={1}>
-              <Avatar size="lg" bgColor="$orange400">
-                <AvatarFallbackText>
-                  {LEADERBOARD_DATA[2]?.avatar}
-                </AvatarFallbackText>
-              </Avatar>
-              <Text size="sm" fontWeight="$semibold" mt="$2" numberOfLines={1}>
-                {LEADERBOARD_DATA[2]?.name.split(" ").pop()}
-              </Text>
-              <Box
-                bg="$orange100"
-                w="$full"
-                h="$16"
-                rounded="$lg"
-                mt="$2"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Text size="2xl" fontWeight="$bold" color="$orange600">
-                  3
+              {/* 3rd Place */}
+              <View style={styles.podiumItem}>
+                <View
+                  style={[
+                    styles.podiumAvatar,
+                    styles.podiumAvatarMedium,
+                    { backgroundColor: getRankColor(3) },
+                  ]}
+                >
+                  <Text style={styles.podiumAvatarText}>{LEADERBOARD_DATA[2]?.avatar}</Text>
+                </View>
+                <Text style={[styles.podiumName, { color: colors.text }]} numberOfLines={1}>
+                  {LEADERBOARD_DATA[2]?.name.split(" ").pop()}
                 </Text>
-              </Box>
-            </VStack>
-          </HStack>
+                <Text style={[styles.podiumScore, { color: colors.textSecondary }]}>
+                  {LEADERBOARD_DATA[2]?.score.toLocaleString()}
+                </Text>
+                <View
+                  style={[
+                    styles.podiumBase,
+                    styles.podiumBase3rd,
+                    { backgroundColor: "#CD7F32" + "20" },
+                  ]}
+                >
+                  <Text style={[styles.podiumRank, { color: "#CD7F32" }]}>3</Text>
+                </View>
+              </View>
+            </View>
+          </FadeIn>
 
           {/* Full Leaderboard List */}
-          <VStack space="sm">
-            {LEADERBOARD_DATA.map((player) => (
-              <Box
-                key={player.rank}
-                bg="$backgroundLight50"
-                rounded="$xl"
-                p="$4"
-                borderWidth={1}
-                borderColor="$borderLight200"
-              >
-                <HStack alignItems="center" space="md">
-                  <Center
-                    w="$8"
-                    h="$8"
-                    rounded="$full"
-                    style={{ backgroundColor: getRankColor(player.rank) }}
-                  >
-                    <Text size="sm" fontWeight="$bold" color="$white">
-                      {player.rank}
+          <View style={styles.listContainer}>
+            {LEADERBOARD_DATA.map((player, index) => (
+              <FadeIn key={player.rank} delay={200 + index * 50}>
+                <Card variant="outlined" padding="md" radius="xl" style={styles.listItem}>
+                  <View style={styles.listItemContent}>
+                    <View
+                      style={[styles.rankBadge, { backgroundColor: getRankColor(player.rank) }]}
+                    >
+                      <Text style={styles.rankBadgeText}>{player.rank}</Text>
+                    </View>
+                    <View style={[styles.listAvatar, { backgroundColor: colors.primary + "20" }]}>
+                      <Text style={[styles.listAvatarText, { color: colors.primary }]}>
+                        {player.avatar}
+                      </Text>
+                    </View>
+                    <View style={styles.listItemInfo}>
+                      <Text style={[styles.listItemName, { color: colors.text }]}>
+                        {player.name}
+                      </Text>
+                    </View>
+                    <Text style={[styles.listItemScore, { color: colors.primary }]}>
+                      {player.score.toLocaleString()}
                     </Text>
-                  </Center>
-                  <Avatar size="sm" bgColor="$primary200">
-                    <AvatarFallbackText>{player.avatar}</AvatarFallbackText>
-                  </Avatar>
-                  <VStack flex={1}>
-                    <Text size="md" fontWeight="$semibold" color="$textDark900">
-                      {player.name}
-                    </Text>
-                  </VStack>
-                  <Text size="md" fontWeight="$bold" color="$primary600">
-                    {player.score.toLocaleString()}
-                  </Text>
-                </HStack>
-              </Box>
+                  </View>
+                </Card>
+              </FadeIn>
             ))}
-          </VStack>
-        </Box>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    marginTop: 4,
+  },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    marginBottom: 32,
+    paddingHorizontal: 16,
+  },
+  podiumItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  podiumItemFirst: {
+    marginHorizontal: 8,
+  },
+  crownContainer: {
+    marginBottom: 4,
+  },
+  crown: {
+    fontSize: 24,
+  },
+  podiumAvatar: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  podiumAvatarMedium: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  podiumAvatarLarge: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  podiumAvatarText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  podiumAvatarTextLarge: {
+    fontSize: 22,
+  },
+  podiumName: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  podiumNameFirst: {
+    fontSize: 16,
+  },
+  podiumScore: {
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  podiumBase: {
+    width: "100%",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  podiumBase1st: {
+    height: 80,
+  },
+  podiumBase2nd: {
+    height: 64,
+  },
+  podiumBase3rd: {
+    height: 48,
+  },
+  podiumRank: {
+    fontSize: 28,
+    fontWeight: "700",
+  },
+  listContainer: {
+    gap: 8,
+  },
+  listItem: {
+    marginBottom: 0,
+  },
+  listItemContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rankBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rankBadgeText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  listAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 12,
+  },
+  listAvatarText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  listItemInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  listItemName: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  listItemScore: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+});

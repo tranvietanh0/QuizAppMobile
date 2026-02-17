@@ -1,138 +1,263 @@
-import { ScrollView } from "react-native";
+import { ScrollView, View, Text, StyleSheet, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import { Box, Heading, Text, VStack, HStack, Pressable, Center } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useCallback } from "react";
 
 import { useAuthStore } from "@/stores/auth.store";
+import { useColors } from "@/theme";
+import { FadeIn, AnimatedPressable, Card } from "@/components/ui";
 
 // Mock categories data
 const CATEGORIES = [
-  { id: "1", name: "Science", icon: "beaker", color: "#3B82F6" },
-  { id: "2", name: "History", icon: "book", color: "#8B5CF6" },
-  { id: "3", name: "Geography", icon: "globe", color: "#22C55E" },
-  { id: "4", name: "Sports", icon: "trophy", color: "#F59E0B" },
-  { id: "5", name: "Music", icon: "music", color: "#EF4444" },
-  { id: "6", name: "Movies", icon: "film", color: "#EC4899" },
+  { id: "1", name: "Science", icon: "beaker" as const, color: "#007AFF" },
+  { id: "2", name: "History", icon: "book" as const, color: "#5856D6" },
+  { id: "3", name: "Geography", icon: "globe" as const, color: "#34C759" },
+  { id: "4", name: "Sports", icon: "trophy" as const, color: "#FF9500" },
+  { id: "5", name: "Music", icon: "musical-notes" as const, color: "#FF3B30" },
+  { id: "6", name: "Movies", icon: "film" as const, color: "#AF52DE" },
 ];
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
+  const colors = useColors();
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleStartQuiz = (categoryId: string) => {
     router.push(`/(main)/quiz/${categoryId}` as never);
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Simulate refresh
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Box px="$4" py="$6">
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        <View style={styles.content}>
           {/* Header */}
-          <VStack space="xs" mb="$6">
-            <Text size="md" color="$textLight500">
-              Hello,
-            </Text>
-            <Heading size="xl" color="$textDark900">
-              {user?.displayName || user?.username || "Player"}
-            </Heading>
-          </VStack>
+          <FadeIn delay={0}>
+            <View style={styles.header}>
+              <Text style={[styles.greeting, { color: colors.textSecondary }]}>Hello,</Text>
+              <Text style={[styles.username, { color: colors.text }]}>
+                {user?.displayName || user?.username || "Player"}
+              </Text>
+            </View>
+          </FadeIn>
 
           {/* Daily Challenge Card */}
-          <Pressable
-            onPress={() => {
-              // TODO: Navigate to daily challenge
-            }}
-          >
-            <Box bg="$primary600" rounded="$xl" p="$5" mb="$6" overflow="hidden">
-              <HStack justifyContent="space-between" alignItems="center">
-                <VStack space="xs" flex={1}>
-                  <Text size="sm" color="$white" opacity={0.9}>
-                    Daily Challenge
-                  </Text>
-                  <Heading size="lg" color="$white">
-                    10 questions - 5 min
-                  </Heading>
-                  <Text size="xs" color="$white" opacity={0.7} mt="$1">
-                    Complete to earn coins!
-                  </Text>
-                </VStack>
-                <Center bg="$white" w="$12" h="$12" rounded="$full" opacity={0.9}>
-                  <Ionicons name="play" size={24} color="#6366F1" />
-                </Center>
-              </HStack>
-            </Box>
-          </Pressable>
+          <FadeIn delay={100}>
+            <AnimatedPressable
+              onPress={() => {
+                // TODO: Navigate to daily challenge
+              }}
+            >
+              <View style={[styles.dailyCard, { backgroundColor: colors.primary }]}>
+                <View style={styles.dailyCardContent}>
+                  <View style={styles.dailyCardText}>
+                    <Text style={styles.dailyCardLabel}>Daily Challenge</Text>
+                    <Text style={styles.dailyCardTitle}>10 questions - 5 min</Text>
+                    <Text style={styles.dailyCardSubtitle}>Complete to earn coins!</Text>
+                  </View>
+                  <View style={styles.dailyCardButton}>
+                    <Ionicons name="play" size={24} color={colors.primary} />
+                  </View>
+                </View>
+              </View>
+            </AnimatedPressable>
+          </FadeIn>
 
           {/* Categories Section */}
-          <VStack space="md">
-            <HStack justifyContent="space-between" alignItems="center">
-              <Heading size="md" color="$textDark900">
-                Categories
-              </Heading>
-              <Pressable>
-                <Text size="sm" color="$primary600" fontWeight="$medium">
-                  View all
-                </Text>
-              </Pressable>
-            </HStack>
+          <FadeIn delay={200}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Categories</Text>
+              <AnimatedPressable>
+                <Text style={[styles.viewAllText, { color: colors.primary }]}>View all</Text>
+              </AnimatedPressable>
+            </View>
+          </FadeIn>
 
-            {/* Category Grid */}
-            <HStack flexWrap="wrap" marginHorizontal={-4}>
-              {CATEGORIES.map((category) => (
-                <Box key={category.id} w="$1/2" p="$1">
-                  <Pressable onPress={() => handleStartQuiz(category.id)}>
-                    <Box
-                      bg="$backgroundLight50"
-                      rounded="$xl"
-                      p="$4"
-                      borderWidth={1}
-                      borderColor="$borderLight200"
-                    >
-                      <Center
-                        w="$12"
-                        h="$12"
-                        rounded="$lg"
-                        mb="$3"
-                        style={{ backgroundColor: category.color + "20" }}
-                      >
-                        <Text fontSize="$xl" fontWeight="$bold" style={{ color: category.color }}>
-                          {category.name.charAt(0)}
-                        </Text>
-                      </Center>
-                      <Text size="md" fontWeight="$semibold" color="$textDark900">
-                        {category.name}
-                      </Text>
-                      <Text size="xs" color="$textLight500" mt="$1">
-                        50 questions
-                      </Text>
-                    </Box>
-                  </Pressable>
-                </Box>
-              ))}
-            </HStack>
-          </VStack>
+          {/* Category Grid */}
+          <View style={styles.categoryGrid}>
+            {CATEGORIES.map((category, index) => (
+              <FadeIn key={category.id} delay={250 + index * 50}>
+                <AnimatedPressable
+                  onPress={() => handleStartQuiz(category.id)}
+                  style={styles.categoryCardWrapper}
+                >
+                  <Card variant="outlined" padding="md" radius="xl">
+                    <View style={[styles.categoryIcon, { backgroundColor: category.color + "15" }]}>
+                      <Ionicons name={category.icon} size={24} color={category.color} />
+                    </View>
+                    <Text style={[styles.categoryName, { color: colors.text }]}>
+                      {category.name}
+                    </Text>
+                    <Text style={[styles.categoryCount, { color: colors.textTertiary }]}>
+                      50 questions
+                    </Text>
+                  </Card>
+                </AnimatedPressable>
+              </FadeIn>
+            ))}
+          </View>
 
           {/* Recent Activity */}
-          <VStack space="md" mt="$6">
-            <Heading size="md" color="$textDark900">
-              Recent Activity
-            </Heading>
-            <Box
-              bg="$backgroundLight50"
-              rounded="$xl"
-              p="$4"
-              borderWidth={1}
-              borderColor="$borderLight200"
-            >
-              <Center py="$4">
-                <Text size="sm" color="$textLight500">
-                  No recent activity
-                </Text>
-              </Center>
-            </Box>
-          </VStack>
-        </Box>
+          <FadeIn delay={550}>
+            <View style={styles.recentSection}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+              <Card variant="outlined" padding="lg" radius="xl" style={styles.emptyCard}>
+                <View style={styles.emptyState}>
+                  <View style={[styles.emptyIcon, { backgroundColor: colors.backgroundSecondary }]}>
+                    <Ionicons name="time-outline" size={24} color={colors.textTertiary} />
+                  </View>
+                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                    No recent activity
+                  </Text>
+                  <Text style={[styles.emptySubtext, { color: colors.textTertiary }]}>
+                    Start a quiz to see your progress
+                  </Text>
+                </View>
+              </Card>
+            </View>
+          </FadeIn>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  greeting: {
+    fontSize: 16,
+  },
+  username: {
+    fontSize: 28,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  dailyCard: {
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+  },
+  dailyCardContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dailyCardText: {
+    flex: 1,
+  },
+  dailyCardLabel: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  dailyCardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    marginTop: 4,
+  },
+  dailyCardSubtitle: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 6,
+  },
+  dailyCardButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  categoryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6,
+  },
+  categoryCardWrapper: {
+    width: "50%",
+    padding: 6,
+  },
+  categoryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  categoryCount: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  recentSection: {
+    marginTop: 24,
+  },
+  emptyCard: {
+    marginTop: 12,
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  emptyIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    marginTop: 4,
+    textAlign: "center",
+  },
+});

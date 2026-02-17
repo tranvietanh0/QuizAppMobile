@@ -4,6 +4,9 @@
  */
 
 export { config } from "./gluestack.config";
+export { lightColors, darkColors, type ThemeColors } from "./colors";
+export { ThemeProvider, useTheme, useColors, useIsDark } from "./ThemeContext";
+export * from "./animations";
 
 // Color constants for use outside of Gluestack components
 export const colors = {

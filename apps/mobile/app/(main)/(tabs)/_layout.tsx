@@ -1,34 +1,26 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+import { useColors } from "@/theme";
+
 // Tab bar icon component
-function TabIcon({
-  name,
-  focused,
-}: {
-  name: keyof typeof Ionicons.glyphMap;
-  focused: boolean;
-}) {
-  return (
-    <Ionicons
-      name={name}
-      size={24}
-      color={focused ? "#6366F1" : "#9CA3AF"}
-    />
-  );
+function TabIcon({ name, color }: { name: keyof typeof Ionicons.glyphMap; color: string }) {
+  return <Ionicons name={name} size={24} color={color} />;
 }
 
 export default function TabLayout() {
+  const colors = useColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#6366F1",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "#E5E7EB",
-          borderTopWidth: 1,
+          backgroundColor: colors.card,
+          borderTopColor: colors.separator,
+          borderTopWidth: 0.5,
           paddingTop: 8,
           paddingBottom: 8,
           height: 60,
@@ -43,8 +35,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? "home" : "home-outline"} focused={focused} />
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? "home" : "home-outline"} color={color} />
           ),
         }}
       />
@@ -52,8 +44,8 @@ export default function TabLayout() {
         name="leaderboard"
         options={{
           title: "Leaderboard",
-          tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? "trophy" : "trophy-outline"} focused={focused} />
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? "trophy" : "trophy-outline"} color={color} />
           ),
         }}
       />
@@ -61,8 +53,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? "person" : "person-outline"} focused={focused} />
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? "person" : "person-outline"} color={color} />
           ),
         }}
       />
