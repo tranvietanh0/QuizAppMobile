@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
 
   const handleSubmit = async () => {
     if (!email) {
-      setError("Vui long nhap email");
+      setError("Please enter your email");
       return;
     }
 
@@ -40,8 +40,8 @@ export default function ForgotPasswordScreen() {
       // TODO: Call forgot password API
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSuccess(true);
-    } catch (err) {
-      setError("Khong the gui email. Vui long thu lai.");
+    } catch {
+      setError("Failed to send email. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -52,26 +52,13 @@ export default function ForgotPasswordScreen() {
       <Box flex={1} bg="$white" px="$6" justifyContent="center">
         <Center>
           <Heading size="xl" color="$primary600" textAlign="center">
-            Da gui email!
+            Email Sent!
           </Heading>
-          <Text
-            size="md"
-            color="$textLight500"
-            mt="$4"
-            textAlign="center"
-            lineHeight="$lg"
-          >
-            Vui long kiem tra hop thu cua ban va lam theo huong dan de dat lai
-            mat khau.
+          <Text size="md" color="$textLight500" mt="$4" textAlign="center" lineHeight="$lg">
+            Please check your inbox and follow the instructions to reset your password.
           </Text>
-          <Button
-            size="lg"
-            bgColor="$primary600"
-            onPress={() => router.back()}
-            mt="$8"
-            w="$full"
-          >
-            <ButtonText>Quay lai dang nhap</ButtonText>
+          <Button size="lg" bgColor="$primary600" onPress={() => router.back()} mt="$8" w="$full">
+            <ButtonText>Back to Sign In</ButtonText>
           </Button>
         </Center>
       </Box>
@@ -83,10 +70,7 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <Box flex={1} bg="$white" px="$6" pt="$16">
           <Pressable onPress={() => router.back()} mb="$8">
             <Icon as={ArrowLeftIcon} size="xl" color="$textDark900" />
@@ -94,10 +78,10 @@ export default function ForgotPasswordScreen() {
 
           <VStack space="md">
             <Heading size="2xl" color="$textDark900">
-              Quen mat khau?
+              Forgot Password?
             </Heading>
             <Text size="md" color="$textLight500" mb="$6">
-              Nhap email cua ban, chung toi se gui huong dan dat lai mat khau.
+              Enter your email and we'll send you instructions to reset your password.
             </Text>
 
             <FormControl isInvalid={!!error}>
@@ -127,15 +111,13 @@ export default function ForgotPasswordScreen() {
               isDisabled={isLoading}
               mt="$4"
             >
-              <ButtonText>
-                {isLoading ? "Dang gui..." : "Gui yeu cau"}
-              </ButtonText>
+              <ButtonText>{isLoading ? "Sending..." : "Send Request"}</ButtonText>
             </Button>
 
             <Center mt="$6">
               <Link href="/(auth)/login">
                 <Text color="$primary600" fontWeight="$medium">
-                  Quay lai dang nhap
+                  Back to Sign In
                 </Text>
               </Link>
             </Center>

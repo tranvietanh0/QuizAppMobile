@@ -32,17 +32,17 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!email || !username || !password || !confirmPassword) {
-      setError("Vui long dien day du thong tin");
+      setError("Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Mat khau khong khop");
+      setError("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setError("Mat khau phai co it nhat 6 ky tu");
+      setError("Password must be at least 6 characters");
       return;
     }
 
@@ -52,8 +52,8 @@ export default function RegisterScreen() {
     try {
       await register(email, username, password);
       router.replace("/(main)/(tabs)");
-    } catch (err) {
-      setError("Dang ky that bai. Vui long thu lai.");
+    } catch {
+      setError("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -64,17 +64,14 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <Box flex={1} bg="$white" px="$6" justifyContent="center" py="$10">
           <Center mb="$8">
             <Heading size="2xl" color="$primary600">
-              Tao tai khoan
+              Create Account
             </Heading>
             <Text size="md" color="$textLight500" mt="$2">
-              Dang ky de bat dau trai nghiem
+              Sign up to get started
             </Text>
           </Center>
 
@@ -96,7 +93,7 @@ export default function RegisterScreen() {
 
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText>Ten nguoi dung</FormControlLabelText>
+                <FormControlLabelText>Username</FormControlLabelText>
               </FormControlLabel>
               <Input size="lg" variant="outline">
                 <InputField
@@ -110,11 +107,11 @@ export default function RegisterScreen() {
 
             <FormControl>
               <FormControlLabel>
-                <FormControlLabelText>Mat khau</FormControlLabelText>
+                <FormControlLabelText>Password</FormControlLabelText>
               </FormControlLabel>
               <Input size="lg" variant="outline">
                 <InputField
-                  placeholder="It nhat 6 ky tu"
+                  placeholder="At least 6 characters"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -124,11 +121,11 @@ export default function RegisterScreen() {
 
             <FormControl isInvalid={!!error}>
               <FormControlLabel>
-                <FormControlLabelText>Xac nhan mat khau</FormControlLabelText>
+                <FormControlLabelText>Confirm Password</FormControlLabelText>
               </FormControlLabel>
               <Input size="lg" variant="outline">
                 <InputField
-                  placeholder="Nhap lai mat khau"
+                  placeholder="Re-enter password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
@@ -148,17 +145,15 @@ export default function RegisterScreen() {
               isDisabled={isLoading}
               mt="$4"
             >
-              <ButtonText>
-                {isLoading ? "Dang xu ly..." : "Dang ky"}
-              </ButtonText>
+              <ButtonText>{isLoading ? "Creating account..." : "Sign Up"}</ButtonText>
             </Button>
 
             <Center mt="$6">
               <Text size="sm" color="$textLight500">
-                Da co tai khoan?{" "}
+                Already have an account?{" "}
                 <Link href="/(auth)/login">
                   <Text color="$primary600" fontWeight="$bold">
-                    Dang nhap
+                    Sign In
                   </Text>
                 </Link>
               </Text>

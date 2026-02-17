@@ -22,8 +22,8 @@ interface EmptyStateProps {
  * Empty state component for lists and screens with no data
  */
 export function EmptyState({
-  title = "Khong co du lieu",
-  message = "Chua co noi dung de hien thi.",
+  title = "No data",
+  message = "Nothing to display yet.",
   icon = InfoIcon,
   actionText,
   onAction,
@@ -46,24 +46,13 @@ export function EmptyState({
           <Heading size="md" color="$textDark900" textAlign="center">
             {title}
           </Heading>
-          <Text
-            size="sm"
-            color="$textLight500"
-            textAlign="center"
-            lineHeight="$md"
-          >
+          <Text size="sm" color="$textLight500" textAlign="center" lineHeight="$md">
             {message}
           </Text>
         </VStack>
 
         {actionText && onAction && (
-          <Button
-            size="md"
-            variant="outline"
-            borderColor="$primary600"
-            onPress={onAction}
-            mt="$2"
-          >
+          <Button size="md" variant="outline" borderColor="$primary600" onPress={onAction} mt="$2">
             <ButtonText color="$primary600">{actionText}</ButtonText>
           </Button>
         )}

@@ -1,14 +1,6 @@
 import { ScrollView } from "react-native";
 import { router } from "expo-router";
-import {
-  Box,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Pressable,
-  Center,
-} from "@gluestack-ui/themed";
+import { Box, Heading, Text, VStack, HStack, Pressable, Center } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,12 +8,12 @@ import { useAuthStore } from "@/stores/auth.store";
 
 // Mock categories data
 const CATEGORIES = [
-  { id: "1", name: "Khoa hoc", icon: "beaker", color: "#3B82F6" },
-  { id: "2", name: "Lich su", icon: "book", color: "#8B5CF6" },
-  { id: "3", name: "Dia ly", icon: "globe", color: "#22C55E" },
-  { id: "4", name: "The thao", icon: "trophy", color: "#F59E0B" },
-  { id: "5", name: "Am nhac", icon: "music", color: "#EF4444" },
-  { id: "6", name: "Phim anh", icon: "film", color: "#EC4899" },
+  { id: "1", name: "Science", icon: "beaker", color: "#3B82F6" },
+  { id: "2", name: "History", icon: "book", color: "#8B5CF6" },
+  { id: "3", name: "Geography", icon: "globe", color: "#22C55E" },
+  { id: "4", name: "Sports", icon: "trophy", color: "#F59E0B" },
+  { id: "5", name: "Music", icon: "music", color: "#EF4444" },
+  { id: "6", name: "Movies", icon: "film", color: "#EC4899" },
 ];
 
 export default function HomeScreen() {
@@ -38,10 +30,10 @@ export default function HomeScreen() {
           {/* Header */}
           <VStack space="xs" mb="$6">
             <Text size="md" color="$textLight500">
-              Xin chao,
+              Hello,
             </Text>
             <Heading size="xl" color="$textDark900">
-              {user?.displayName || user?.username || "Nguoi choi"}
+              {user?.displayName || user?.username || "Player"}
             </Heading>
           </VStack>
 
@@ -51,32 +43,20 @@ export default function HomeScreen() {
               // TODO: Navigate to daily challenge
             }}
           >
-            <Box
-              bg="$primary600"
-              rounded="$xl"
-              p="$5"
-              mb="$6"
-              overflow="hidden"
-            >
+            <Box bg="$primary600" rounded="$xl" p="$5" mb="$6" overflow="hidden">
               <HStack justifyContent="space-between" alignItems="center">
                 <VStack space="xs" flex={1}>
                   <Text size="sm" color="$white" opacity={0.9}>
-                    Thach dau hang ngay
+                    Daily Challenge
                   </Text>
                   <Heading size="lg" color="$white">
-                    10 cau hoi - 5 phut
+                    10 questions - 5 min
                   </Heading>
                   <Text size="xs" color="$white" opacity={0.7} mt="$1">
-                    Hoan thanh de nhan xu!
+                    Complete to earn coins!
                   </Text>
                 </VStack>
-                <Center
-                  bg="$white"
-                  w="$12"
-                  h="$12"
-                  rounded="$full"
-                  opacity={0.9}
-                >
+                <Center bg="$white" w="$12" h="$12" rounded="$full" opacity={0.9}>
                   <Ionicons name="play" size={24} color="#6366F1" />
                 </Center>
               </HStack>
@@ -87,11 +67,11 @@ export default function HomeScreen() {
           <VStack space="md">
             <HStack justifyContent="space-between" alignItems="center">
               <Heading size="md" color="$textDark900">
-                Danh muc
+                Categories
               </Heading>
               <Pressable>
                 <Text size="sm" color="$primary600" fontWeight="$medium">
-                  Xem tat ca
+                  View all
                 </Text>
               </Pressable>
             </HStack>
@@ -115,23 +95,15 @@ export default function HomeScreen() {
                         mb="$3"
                         style={{ backgroundColor: category.color + "20" }}
                       >
-                        <Text
-                          fontSize="$xl"
-                          fontWeight="$bold"
-                          style={{ color: category.color }}
-                        >
+                        <Text fontSize="$xl" fontWeight="$bold" style={{ color: category.color }}>
                           {category.name.charAt(0)}
                         </Text>
                       </Center>
-                      <Text
-                        size="md"
-                        fontWeight="$semibold"
-                        color="$textDark900"
-                      >
+                      <Text size="md" fontWeight="$semibold" color="$textDark900">
                         {category.name}
                       </Text>
                       <Text size="xs" color="$textLight500" mt="$1">
-                        50 cau hoi
+                        50 questions
                       </Text>
                     </Box>
                   </Pressable>
@@ -143,7 +115,7 @@ export default function HomeScreen() {
           {/* Recent Activity */}
           <VStack space="md" mt="$6">
             <Heading size="md" color="$textDark900">
-              Hoat dong gan day
+              Recent Activity
             </Heading>
             <Box
               bg="$backgroundLight50"
@@ -154,7 +126,7 @@ export default function HomeScreen() {
             >
               <Center py="$4">
                 <Text size="sm" color="$textLight500">
-                  Chua co hoat dong nao
+                  No recent activity
                 </Text>
               </Center>
             </Box>

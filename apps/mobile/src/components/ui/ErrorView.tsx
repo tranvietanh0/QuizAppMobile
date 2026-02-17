@@ -21,10 +21,10 @@ interface ErrorViewProps {
  * Error view component for displaying errors
  */
 export function ErrorView({
-  title = "Da xay ra loi",
-  message = "Khong the tai du lieu. Vui long thu lai.",
+  title = "Something went wrong",
+  message = "Unable to load data. Please try again.",
   onRetry,
-  retryText = "Thu lai",
+  retryText = "Retry",
 }: ErrorViewProps) {
   return (
     <Center flex={1} bg="$white" px="$6">
@@ -44,12 +44,7 @@ export function ErrorView({
           <Heading size="lg" color="$textDark900" textAlign="center">
             {title}
           </Heading>
-          <Text
-            size="md"
-            color="$textLight500"
-            textAlign="center"
-            lineHeight="$lg"
-          >
+          <Text size="md" color="$textLight500" textAlign="center" lineHeight="$lg">
             {message}
           </Text>
         </VStack>

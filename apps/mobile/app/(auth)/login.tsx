@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("Vui long nhap email va mat khau");
+      setError("Please enter email and password");
       return;
     }
 
@@ -40,8 +40,8 @@ export default function LoginScreen() {
     try {
       await login(email, password);
       router.replace("/(main)/(tabs)");
-    } catch (err) {
-      setError("Dang nhap that bai. Vui long kiem tra lai thong tin.");
+    } catch {
+      setError("Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
@@ -52,17 +52,14 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <Box flex={1} bg="$white" px="$6" justifyContent="center">
           <Center mb="$10">
             <Heading size="2xl" color="$primary600">
               QuizApp
             </Heading>
             <Text size="md" color="$textLight500" mt="$2">
-              Dang nhap de tiep tuc
+              Sign in to continue
             </Text>
           </Center>
 
@@ -84,11 +81,11 @@ export default function LoginScreen() {
 
             <FormControl isInvalid={!!error}>
               <FormControlLabel>
-                <FormControlLabelText>Mat khau</FormControlLabelText>
+                <FormControlLabelText>Password</FormControlLabelText>
               </FormControlLabel>
               <Input size="lg" variant="outline">
                 <InputField
-                  placeholder="Nhap mat khau"
+                  placeholder="Enter password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -102,13 +99,8 @@ export default function LoginScreen() {
             </FormControl>
 
             <Link href="/(auth)/forgot-password" asChild>
-              <Text
-                size="sm"
-                color="$primary600"
-                textAlign="right"
-                fontWeight="$medium"
-              >
-                Quen mat khau?
+              <Text size="sm" color="$primary600" textAlign="right" fontWeight="$medium">
+                Forgot password?
               </Text>
             </Link>
 
@@ -119,17 +111,15 @@ export default function LoginScreen() {
               isDisabled={isLoading}
               mt="$4"
             >
-              <ButtonText>
-                {isLoading ? "Dang xu ly..." : "Dang nhap"}
-              </ButtonText>
+              <ButtonText>{isLoading ? "Signing in..." : "Sign In"}</ButtonText>
             </Button>
 
             <Center mt="$6">
               <Text size="sm" color="$textLight500">
-                Chua co tai khoan?{" "}
+                Don't have an account?{" "}
                 <Link href="/(auth)/register">
                   <Text color="$primary600" fontWeight="$bold">
-                    Dang ky ngay
+                    Sign Up
                   </Text>
                 </Link>
               </Text>
