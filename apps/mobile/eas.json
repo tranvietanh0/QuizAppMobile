@@ -10,7 +10,7 @@
       "env": {
         "EXPO_USE_COMMUNITY_AUTOLINKING": "1"
       },
-      "prebuildCommand": "cd ../.. && pnpm --filter @quizapp/shared build"
+      "prebuildCommand": "bash scripts/eas-build-pre-install.sh"
     },
     "development": {
       "extends": "base",
