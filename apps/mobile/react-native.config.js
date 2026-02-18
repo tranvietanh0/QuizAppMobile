@@ -9,6 +9,7 @@ module.exports = {
   project: {
     android: {
       sourceDir: "./android",
+      packageName: "com.quizapp.mobile",
     },
     ios: {
       sourceDir: "./ios",
