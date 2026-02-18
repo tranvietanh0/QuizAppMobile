@@ -9,8 +9,7 @@
       "pnpm": "9.15.0",
       "env": {
         "EXPO_USE_COMMUNITY_AUTOLINKING": "1"
-      },
-      "prebuildCommand": "bash scripts/eas-build-pre-install.sh"
+      }
     },
     "development": {
       "extends": "base",
