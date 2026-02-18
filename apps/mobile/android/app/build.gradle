@@ -59,7 +59,6 @@ react {
     // hermesFlags = ["-O", "-output-source-map"]
 
     /* Autolinking */
-    // Using React Native community autolinking
     autolinkLibrariesWithApp()
 }
 
