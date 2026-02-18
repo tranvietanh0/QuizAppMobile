@@ -16,7 +16,7 @@
     "postinstall": "node scripts/postinstall.js"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
+    "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.13.4",
