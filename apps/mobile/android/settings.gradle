@@ -5,7 +5,6 @@ pluginManagement {
 // React Native community autolinking (works better with monorepos)
 plugins { id("com.facebook.react.settings") }
 
-def packages = new File(rootDir, "package.json").text
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
     ex.autolinkLibrariesFromCommand()
 }
