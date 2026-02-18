@@ -3,12 +3,10 @@ pluginManagement {
 }
 plugins { id("com.facebook.react.settings") }
 
-// Mobile app root (parent of android folder) where react-native.config.js is located
-def mobileAppRoot = rootDir.parentFile
-
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
-    ex.autolinkLibrariesFromCommand(workingDirectory: mobileAppRoot)
+    // react-native.config.js is in android folder for autolinking to find
+    ex.autolinkLibrariesFromCommand()
   } else {
     def command = [
       'node',
@@ -20,7 +18,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
       '--platform',
       'android'
     ].toList()
-    ex.autolinkLibrariesFromCommand(command, workingDirectory: mobileAppRoot)
+    ex.autolinkLibrariesFromCommand(command)
   }
 }
 
