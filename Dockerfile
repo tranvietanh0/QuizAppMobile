@@ -6,7 +6,7 @@ RUN corepack enable && corepack prepare pnpm@10.29.3 --activate
 WORKDIR /app
 
 # Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/backend/package.json ./apps/backend/
 
@@ -16,6 +16,7 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY packages/shared ./packages/shared
 COPY apps/backend ./apps/backend
+COPY apps/backend/prisma ./apps/backend/prisma
 
 # Build shared package
 RUN pnpm --filter @quizapp/shared build
