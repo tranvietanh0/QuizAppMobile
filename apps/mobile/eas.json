@@ -6,7 +6,11 @@
   "build": {
     "base": {
       "node": "20.18.0",
-      "pnpm": "9.15.0"
+      "pnpm": "9.15.0",
+      "env": {
+        "EXPO_USE_COMMUNITY_AUTOLINKING": "1"
+      },
+      "prebuildCommand": "cd ../.. && pnpm --filter @quizapp/shared build"
     },
     "development": {
       "extends": "base",
@@ -20,11 +24,11 @@
       },
       "env": {
         "APP_ENV": "development",
-        "API_URL": "http://localhost:3000",
-        "EXPO_USE_COMMUNITY_AUTOLINKING": "1"
+        "API_URL": "http://localhost:3000"
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
@@ -34,7 +38,7 @@
       },
       "env": {
         "APP_ENV": "preview",
-        "API_URL": "https://api-staging.quizapp.com"
+        "API_URL": "https://quizappmobile-production.up.railway.app"
       },
       "channel": "preview"
     },
@@ -45,16 +49,17 @@
       }
     },
     "production": {
+      "extends": "base",
       "distribution": "store",
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "apk"
       },
       "ios": {
         "resourceClass": "m-medium"
       },
       "env": {
         "APP_ENV": "production",
-        "API_URL": "https://api.quizapp.com"
+        "API_URL": "https://quizappmobile-production.up.railway.app"
       },
       "channel": "production",
       "autoIncrement": true
