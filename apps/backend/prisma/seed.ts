@@ -1,4 +1,4 @@
-import { PrismaClient, QuestionType, Difficulty, QuizSessionStatus } from "@prisma/client";
+import { PrismaClient, QuestionType, Difficulty, QuizSessionStatus, Role } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -1405,13 +1405,14 @@ async function seedUsers() {
 
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@quizapp.com" },
-    update: {},
+    update: { role: Role.ADMIN },
     create: {
       email: "admin@quizapp.com",
       username: "admin",
       displayName: "Admin User",
       password: adminPassword,
       isEmailVerified: true,
+      role: Role.ADMIN,
     },
   });
 
