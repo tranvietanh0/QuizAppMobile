@@ -1,0 +1,16 @@
+diff --git a/scripts/android/autolinking_implementation.gradle b/scripts/android/autolinking_implementation.gradle
+index 1234567..abcdefg 100644
+--- a/scripts/android/autolinking_implementation.gradle
++++ b/scripts/android/autolinking_implementation.gradle
+@@ -330,7 +330,10 @@
+       for (module in modules) {
+         for (modulePlugin in module.plugins) {
+           println " ${Emojis.INFORMATION}  ${Colors.YELLOW}Applying gradle plugin${Colors.RESET} '${Colors.GREEN}${modulePlugin.id}${Colors.RESET}' (${module.name}@${module.version})"
+-          project.plugins.apply(modulePlugin.id)
++          // Skip rootproject plugin to avoid conflict in monorepos
++          if (modulePlugin.id != 'com.facebook.react.rootproject') {
++            project.plugins.apply(modulePlugin.id)
++          }
+         }
+       }
+     }
