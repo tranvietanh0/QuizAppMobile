@@ -5,8 +5,14 @@ pluginManagement {
 // React Native community autolinking (works better with monorepos)
 plugins { id("com.facebook.react.settings") }
 
+// Mobile app root is parent of android folder
+def mobileAppRoot = rootDir.parentFile
+
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-    ex.autolinkLibrariesFromCommand()
+    // Run autolinking from mobile app root where react-native.config.js is located
+    ex.autolinkLibrariesFromCommand(
+        workingDirectory: mobileAppRoot
+    )
 }
 
 rootProject.name = 'QuizApp'
