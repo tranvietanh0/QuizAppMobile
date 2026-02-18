@@ -59,7 +59,8 @@ react {
     // hermesFlags = ["-O", "-output-source-map"]
 
     /* Autolinking */
-    autolinkLibrariesWithApp()
+    // Using Expo autolinking via useExpoModules() in settings.gradle
+    // autolinkLibrariesWithApp()
 }
 
 /**
