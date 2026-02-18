@@ -24,7 +24,26 @@
       "Bash(npx expo-modules-autolinking:*)",
       "Bash(eas:*)",
       "Bash(where:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx nx run:*)",
+      "Bash(npm run backend:build:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose:*)",
+      "Bash(ipconfig:*)",
+      "Bash(printf:*)",
+      "Bash(netsh advfirewall firewall show rule:*)",
+      "Bash(netsh advfirewall firewall add rule:*)",
+      "Bash(xargs:*)",
+      "Bash(git stash:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(taskkill:*)",
+      "Bash(node -e:*)"
     ]
   }
 }
