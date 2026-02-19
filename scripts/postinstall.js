@@ -17,8 +17,11 @@ const PATCH_TARGET =
 
 // The exact line to find and replace
 const ORIGINAL_LINE = "project.plugins.apply(modulePlugin.id)";
+// Skip plugins that cause conflicts in monorepos:
+// - com.facebook.react.rootproject: conflicts with monorepo setup
+// - expo-module-gradle-plugin: library plugin, shouldn't be applied to app
 const PATCHED_LINE =
-  "if (modulePlugin.id != 'com.facebook.react.rootproject') { project.plugins.apply(modulePlugin.id) }";
+  "if (!['com.facebook.react.rootproject', 'expo-module-gradle-plugin'].contains(modulePlugin.id)) { project.plugins.apply(modulePlugin.id) }";
 
 function applyPatch() {
   const filePath = path.join(process.cwd(), PATCH_TARGET);
@@ -30,8 +33,8 @@ function applyPatch() {
 
   let content = fs.readFileSync(filePath, "utf8");
 
-  // Check if already patched
-  if (content.includes("com.facebook.react.rootproject")) {
+  // Check if already patched (check for the new patched line with both plugins)
+  if (content.includes("expo-module-gradle-plugin")) {
     console.log("[postinstall] expo-modules-autolinking already patched, skipping");
     return;
   }
@@ -64,8 +67,52 @@ function applyPatch() {
   );
 }
 
+function patchExpoModulesCore() {
+  const basePath = path.join(
+    process.cwd(),
+    "node_modules/expo-modules-core/android/src/main/java/expo/modules"
+  );
+
+  // Patch 1: Fix BoxShadow.parse call (RN 0.76 compatibility)
+  const cssPropsPath = path.join(basePath, "kotlin/views/decorators/CSSProps.kt");
+  if (fs.existsSync(cssPropsPath)) {
+    let content = fs.readFileSync(cssPropsPath, "utf8");
+    if (content.includes("BoxShadow.parse(shadows.getMap(i), view.context)")) {
+      content = content.replace(
+        "BoxShadow.parse(shadows.getMap(i), view.context)",
+        "BoxShadow.parse(shadows.getMap(i))"
+      );
+      fs.writeFileSync(cssPropsPath, content, "utf8");
+      console.log("[postinstall] Patched expo-modules-core CSSProps.kt for RN 0.76");
+    }
+  }
+
+  // Patch 2: Fix ReactNativeFeatureFlags (RN 0.76 compatibility)
+  const featureFlagsPath = path.join(basePath, "rncompatibility/ReactNativeFeatureFlags.kt");
+  if (fs.existsSync(featureFlagsPath)) {
+    const content = fs.readFileSync(featureFlagsPath, "utf8");
+    if (content.includes("enableBridgelessArchitecture()")) {
+      const patchedContent = `package expo.modules.rncompatibility
+
+/**
+ * A compatibility helper of
+ * \`com.facebook.react.config.ReactFeatureFlags\` and
+ * \`com.facebook.react.internal.featureflags.ReactNativeFeatureFlags\`
+ */
+object ReactNativeFeatureFlags {
+  // Fallback to false when the method is not available in this RN version
+  val enableBridgelessArchitecture = false
+}
+`;
+      fs.writeFileSync(featureFlagsPath, patchedContent, "utf8");
+      console.log("[postinstall] Patched expo-modules-core ReactNativeFeatureFlags.kt for RN 0.76");
+    }
+  }
+}
+
 try {
   applyPatch();
+  patchExpoModulesCore();
 } catch (error) {
   console.error("[postinstall] Error applying patch:", error.message);
   // Don't fail the install

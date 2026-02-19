@@ -21,7 +21,7 @@ buildscript {
     }
 }
 
-apply plugin: "com.facebook.react.rootproject"
+// Note: com.facebook.react.rootproject removed - causes conflicts in monorepos
 
 allprojects {
     repositories {

@@ -31,7 +31,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   return context.resolveRequest(context, moduleName, platform);
 };
 
-// 4. Disable hierarchical lookup for monorepo
-config.resolver.disableHierarchicalLookup = true;
+// 4. Don't disable hierarchical lookup - it breaks entry file resolution
+// config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;
