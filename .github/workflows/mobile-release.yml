@@ -40,7 +40,7 @@ jobs:
     needs: prepare
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -71,7 +71,7 @@ jobs:
       build-url: ${{ steps.get-url.outputs.build-url }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -128,7 +128,7 @@ jobs:
     needs: [prepare, build-android]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
